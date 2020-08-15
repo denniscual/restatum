@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Basic usage render a Component 1`] = `
+<main>
+  <header>
+    <div>
+      Search key 
+      <span
+        data-testid="search key label"
+      />
+    </div>
+    <label
+      for="search"
+    >
+      Search
+    </label>
+    <input
+      id="search"
+      type="text"
+      value=""
+    />
+  </header>
+  <div>
+    <div>
+      Todos count
+      <span
+        data-testid="todos count"
+      >
+        0
+      </span>
+    </div>
+    <ul />
+    <footer>
+      <button>
+        Add todo
+      </button>
+    </footer>
+  </div>
+</main>
+`;
+
+exports[`Basic usage render a Component 2`] = `
+<main>
+  <header>
+    <div>
+      Search key 
+      <span
+        data-testid="search key label"
+      />
+    </div>
+    <label
+      for="search"
+    >
+      Search
+    </label>
+    <input
+      id="search"
+      type="text"
+      value=""
+    />
+  </header>
+  <div>
+    <div>
+      Todos count
+      <span
+        data-testid="todos count"
+      >
+        0
+      </span>
+    </div>
+    <ul />
+    <footer>
+      <button>
+        Add todo
+      </button>
+    </footer>
+  </div>
+</main>
+`;
