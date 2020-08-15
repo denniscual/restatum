@@ -1,4 +1,4 @@
-import { createContainer, useStoreState } from '../index'
+import { createContainer, useStoreState } from '../restatum'
 import { renderHook, act } from '@testing-library/react-hooks'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:

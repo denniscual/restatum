@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { createContainer, useStoreValue, isContextType } from '../index'
+import { createContainer, useStoreValue, isContextType } from '../restatum'
 import { isValidElementType } from 'react-is'
 // TODO: Move this import to a single file.
 // jest-dom adds custom jest matchers for asserting on DOM nodes.

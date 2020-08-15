@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-import { createContainer, useStoreSubscribe, useStoreState } from '../index'
+import { createContainer, useStoreSubscribe, useStoreState } from '../restatum'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
