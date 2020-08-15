@@ -61,7 +61,7 @@ type GetDispatch<
     K extends keyof B
 > = B[K]['dispatch']
 
-export class RootStore<S> {
+class RootStore<S> {
     currentState: S
     subscribers: Set<Callback> = new Set()
 
@@ -81,10 +81,10 @@ export class RootStore<S> {
 
     public subscribe = (cb: Callback) => {
         this.subscribers.add(cb)
-        const that = this
-        return function cleanup() {
-            that.subscribers.delete(cb)
+        const cleanup = () => {
+            this.subscribers.delete(cb)
         }
+        return cleanup
     }
 
     /* // This function will only be called once - in initial render of the Component. */
