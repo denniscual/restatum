@@ -4,7 +4,7 @@
 [![NPM](https://img.shields.io/npm/v/restatum.svg)](https://www.npmjs.com/package/restatum) [![Build Status](https://travis-ci.org/denniscual/restatum.svg?branch=master)](https://travis-ci.org/denniscual/restatum)
 
 Managing your application state must be easy and straightforward. **restatum** is a minimal and fast library 
-which provides you these features in Reactish way. It uses same and well-known approach like [React.useState](https://reactjs.org/docs/hooks-reference.html#usestate) and [React.useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) for handling your state, so integrating it into your app is a breeze!
+which provides you these features in Reactish way. It uses same and well-known approach like [React.useState](https://reactjs.org/docs/hooks-reference.html#usestate) and [React.useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) for handling your state, so integrating it into your app is a breeze! [Sample in Codesandbox](https://codesandbox.io/s/serene-rgb-ok6qd?file=/src/App.js).
 
 ```bash
 npm install --save restatum
@@ -122,6 +122,8 @@ createContainer({
 })
 
 ```
+
+[Check this sample in Codesandbox written in TS](https://codesandbox.io/s/vigilant-solomon-n4uvr?file=/src/App.tsx).
 
 
 ## API
