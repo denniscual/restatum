@@ -271,6 +271,19 @@ function useStoreState<
     return [state, dispatch]
 }
 
+function App() {
+    return (
+        <AppContainer.StoresProvider
+            initialStoresState={{
+                toggle: true,
+                todos: () => ['zion', 'irish', 'dennis'],
+            }}
+        >
+            {children}
+        </AppContainer.StoresProvider>
+    )
+}
+
 /**
  * A hook to access the store's dispatch. Component which uses the hook is not bound to the state.
  * Whenever there is a state change, the Component uses the hook will not rerender.
