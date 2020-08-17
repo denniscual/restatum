@@ -22,15 +22,15 @@ function renderApp({
     toggle = false,
     todos = [],
 }: {
-    toggle?: boolean
-    todos?: string[]
+    toggle?: boolean | (() => boolean)
+    todos?: string[] | (() => string[])
 }) {
     const AppContainer = createContainer({
         toggle: {
             initialState: false,
         },
         todos: {
-            initialState: [],
+            initialState: [] as string[],
         },
     })
 
@@ -94,3 +94,5 @@ it('should override the initialState in createContainer if we passed initialStat
     expect(screen.getByText('irish')).toBeInTheDocument()
     expect(screen.getByText('dennis')).toBeInTheDocument()
 })
+
+it.todo('should invoke the init fn only once when the Components gets mounted')
