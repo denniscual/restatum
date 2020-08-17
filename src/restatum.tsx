@@ -1,7 +1,16 @@
 import React from 'react'
 import invariant from 'invariant'
-import { isValidElementType } from 'react-is'
 import { useSubscription } from 'use-subscription'
+import { isValidElementType } from 'react-is'
+
+// TODO:
+// - Do some other reviews.
+// - add some comments to all higher level apis.
+// - create stunning documentation. Create great sample point to codesandbox.
+// - check again our current repo for restatum. Will improve the DX, as much as possible the DX is the same on CRA. Then the build like wepback blah blabh. Check the eslint.
+// - add travis or maybe just use github or anything. low prio.
+// - add nextime the logic for returning a stores object as a key of createContainer to subscribe to all of the stores state. low prio.
+//   check the below logic.
 
 type InitialState<S> = S | (() => S)
 
@@ -44,12 +53,14 @@ type Stores<T extends StoresConfiguration> = {
     [K in keyof T]: Store<T[K]['initialState'], T[K]['reducer']>
 }
 
-type StoreValues<T extends StoresConfiguration, B extends Stores<T>> = {
+type StoreAccessors<T extends StoresConfiguration, B extends Stores<T>> = {
     [K in keyof T]: {
         Context: React.Context<B | null>
         getKey: () => K
     }
 }
+
+type StoreAccessor<B, K> = { Context: React.Context<B | null>; getKey: () => K }
 
 type GetState<
     B extends Stores<StoresConfiguration>,
@@ -118,10 +129,10 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
 
     const stores: Stores<T> = {} as any
     // This holds the Context and the key to get the correct store.
-    const storeValues: StoreValues<T, typeof stores> = {} as any
+    const storeAccessors: StoreAccessors<T, typeof stores> = {} as any
     const StoresContext = React.createContext<typeof stores | null>(null)
 
-    function addStoreValue(key: keyof T) {
+    function addStoreAccessor(key: keyof T) {
         return {
             Context: StoresContext,
             getKey() {
@@ -133,7 +144,7 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
     // Adding stores.
     entries(configuration).forEach(([key, value]) => {
         // we use this value to access the Context inside the Component.
-        storeValues[key] = addStoreValue(key)
+        storeAccessors[key] = addStoreAccessor(key)
 
         const store = new RootStore(value.initialState)
         function addStore() {
@@ -218,30 +229,37 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
 
     return {
         StoresProvider: StoresProvider,
-        ...storeValues,
+        ...storeAccessors,
     }
 }
 
-function useStoreValue<
-    B extends Stores<StoresConfiguration>,
-    K extends keyof B
->(storeValue: {
-    Context: React.Context<B | null>
-    getKey: () => K
-}): GetState<B, K> {
+// ------------------------------------------------------------------//
+// --------------------------- Hooks -------------------------------//
+// -----------------------------------------------------------------//
+
+function useStore<B extends Stores<StoresConfiguration>, K extends keyof B>(
+    storeAccessor: StoreAccessor<B, K>
+) {
     invariant(
-        isContextType(storeValue.Context),
+        isContextType(storeAccessor.Context),
         `Invalid Context type. Make sure that the passed Context is created by "React.createContext".`
     )
 
-    const stores = React.useContext(storeValue.Context)
+    const stores = React.useContext(storeAccessor.Context)
 
     invariant(
         stores,
         `"stores" is undefined. Make sure the passed Context is correct.`
     )
 
-    const { getState, subscribe } = stores[storeValue.getKey()]
+    return stores[storeAccessor.getKey()]
+}
+
+function useStoreValue<
+    B extends Stores<StoresConfiguration>,
+    K extends keyof B
+>(storeAccessor: StoreAccessor<B, K>): GetState<B, K> {
+    const { getState, subscribe } = useStore(storeAccessor)
 
     // Memoize to avoid removing and re-adding subscriptions each time this hook is called.
     const subscription = React.useMemo(
@@ -264,74 +282,28 @@ function useStoreValue<
 function useStoreState<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
->(storeValue: {
+>(storeAccessor: {
     Context: React.Context<B | null>
     getKey: () => K
 }): [GetState<B, K>, GetDispatch<B, K>] {
-    invariant(
-        isContextType(storeValue.Context),
-        `Invalid Context type. Make sure that the passed Context is created by "React.createContext".`
-    )
-
-    const stores = React.useContext(storeValue.Context)
-
-    invariant(
-        stores,
-        `"stores" is undefined. Make sure the passed Context is correct.`
-    )
-
-    const state = useStoreValue(storeValue)
-
-    const { dispatch } = stores[storeValue.getKey()]
-
+    const state = useStoreValue(storeAccessor)
+    const { dispatch } = useStore(storeAccessor)
     return [state, dispatch]
 }
 
 function useStoreDispatch<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
->(storeValue: {
-    Context: React.Context<B | null>
-    getKey: () => K
-}): GetDispatch<B, K> {
-    invariant(
-        isContextType(storeValue.Context),
-        `Invalid Context type. Make sure that the passed Context is created by "React.createContext".`
-    )
-
-    const stores = React.useContext(storeValue.Context)
-
-    invariant(
-        stores,
-        `"stores" is undefined. Make sure the passed Context is correct.`
-    )
-
-    const { dispatch } = stores[storeValue.getKey()]
-
+>(storeAccessor: StoreAccessor<B, K>): GetDispatch<B, K> {
+    const { dispatch } = useStore(storeAccessor)
     return dispatch
 }
 
 function useStoreSubscribe<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
->(
-    storeValue: { Context: React.Context<B | null>; getKey: () => K },
-    cb: Callback
-) {
-    invariant(
-        isContextType(storeValue.Context),
-        `Invalid Context type. Make sure that the passed Context is created by "React.createContext".`
-    )
-
-    const stores = React.useContext(storeValue.Context)
-
-    invariant(
-        stores,
-        `"stores" is undefined. Make sure the passed Context is correct.`
-    )
-
-    const { subscribe } = stores[storeValue.getKey()]
-
+>(storeAccessor: StoreAccessor<B, K>, cb: Callback) {
+    const { subscribe } = useStore(storeAccessor)
     React.useEffect(() => {
         const cleanup = subscribe(cb)
         return () => cleanup()
