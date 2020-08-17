@@ -3,7 +3,7 @@
 
 [![NPM](https://img.shields.io/npm/v/restatum.svg)](https://www.npmjs.com/package/restatum) [![Build Status](https://travis-ci.org/denniscual/restatum.svg?branch=master)](https://travis-ci.org/denniscual/restatum)
 
-Managing your application state must be easy and straightforward. "restatum" is a minimal and fast library 
+Managing your application state must be easy and straightforward. **restatum** is a minimal and fast library 
 which provides you these features in Reactish way. It uses same and well-known approach like [React.useState](https://reactjs.org/docs/hooks-reference.html#usestate) and [React.useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) for handling your state, so integrating it into your app is a breeze!
 
 ```bash
@@ -95,18 +95,19 @@ stores near to the Components who consume them. Provide a scope to your shared s
 via wrapping the React tree to the `StoresProvider`. Don't always think that shared state is always global.
 
 ### Slice your state
-To make your app more success with restatum, always slice your state. "restatum" supports having a gigantic store state. 
+To make your app more success with 
+, always slice your state. **restatum** supports having a gigantic store state. 
 But if you can put some values to their own store, do it. 
 
 Some benefits of having multiple stores:
 - The Component who consume the store state will only subscribe to that specific store not to all stores!. It 
 means the subscription is only add to a single store.
-- Because "restatum" supports the same interface of React hooks like `React.useState` and `React.useReducer`,
+- Because **restatum** supports the same interface of React hooks like `React.useState` and `React.useReducer`,
 you can have a best choice what behaviuor you want to manage your state. Slicing your state could leverage
 this feature.
 
 ### Typescript
-"restatum" is written via Typescript. It has great support for type checking and documentation.
+**restatum** is written via Typescript. It has great support for type checking and documentation.
 
 A tip for typescript-user when creating `Container`, in some cases you need to explicitly type the `initialState` and the 
 `reducer` so that typescript can pick the correct type of the store's state. You can do this using the `const assertion`. 
