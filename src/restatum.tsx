@@ -5,15 +5,6 @@ import { isContextType, entries } from './utils'
 import RootStore from './Store'
 import { Callback, InitialState } from './utils/types'
 
-// TODO:
-// - Do some other reviews.
-// - add some comments to all higher level apis.
-// - create stunning documentation. Create great sample point to codesandbox.
-// - check again our current repo for restatum. Will improve the DX, as much as possible the DX is the same on CRA. Then the build like wepback blah blabh. Check the eslint.
-// - add travis or maybe just use github or anything. low prio.
-// - add nextime the logic for returning a stores object as a key of createContainer to subscribe to all of the stores state. low prio.
-//   check the below logic.
-
 type Reducer = {
     (state: any, action: any): any
 }
@@ -37,14 +28,11 @@ type Stores<T extends StoresConfiguration> = {
     [K in keyof T]: Store<T[K]['initialState'], T[K]['reducer']>
 }
 
-type StoreAccessors<T extends StoresConfiguration, B extends Stores<T>> = {
-    [K in keyof T]: {
-        Context: React.Context<B | null>
-        getKey: () => K
-    }
-}
-
 type StoreAccessor<B, K> = { Context: React.Context<B | null>; getKey: () => K }
+
+type StoreAccessors<T extends StoresConfiguration, B extends Stores<T>> = {
+    [K in keyof T]: StoreAccessor<B, K>
+}
 
 // ------------------------------------------------------------------//
 // ----------------------- createContainer --------------------------//
@@ -72,7 +60,7 @@ type StoreAccessor<B, K> = { Context: React.Context<B | null>; getKey: () => K }
 function createContainer<T extends StoresConfiguration>(configuration: T) {
     invariant(
         typeof configuration === 'object' && !Array.isArray(configuration),
-        `Invalid configuration type. "createStore" is expecting type object but receives ${typeof configuration}.`
+        `Invalid configuration type. "createContainer" is expecting type object but receives ${typeof configuration}.`
     )
 
     const stores: Stores<T> = {} as any
@@ -207,7 +195,7 @@ function useStore<B extends Stores<StoresConfiguration>, K extends keyof B>(
 
     invariant(
         stores,
-        `"stores" is undefined. Make sure the passed Context is correct.`
+        `"stores" is undefined. Make sure "storeAccessor" is created by "createContainer".`
     )
 
     return stores[storeAccessor.getKey()]
@@ -221,7 +209,7 @@ function useStore<B extends Stores<StoresConfiguration>, K extends keyof B>(
  * @example
  *
  * import { useStoreValue } from 'restatum'
- * import AppContainer from './appContainer'
+ * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
  *   const toggle = useStoreValue(AppContainer.toggle)
@@ -259,7 +247,7 @@ function useStoreValue<
  * @example
  *
  * import { useStoreState } from 'restatum'
- * import AppContainer from './appContainer'
+ * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
  *   const [toggle, setToggle] = useStoreState(AppContainer.toggle)
@@ -290,7 +278,7 @@ function useStoreState<
  * @example
  *
  * import { useStoreState } from 'restatum'
- * import AppContainer from './appContainer'
+ * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
  *   const setToggle = useStoreDispatch(AppContainer.toggle)
@@ -314,7 +302,7 @@ function useStoreDispatch<
  * @example
  *
  * import { useStoreState } from 'restatum'
- * import AppContainer from './appContainer'
+ * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
  *   useStoreSubscribe(AppContainer.toggle, state => console.log(state))
