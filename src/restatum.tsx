@@ -1,7 +1,9 @@
 import React from 'react'
 import invariant from 'invariant'
 import { useSubscription } from 'use-subscription'
-import { isValidElementType } from 'react-is'
+import { isContextType, entries } from './utils'
+import RootStore from './Store'
+import { Callback, InitialState } from './utils/types'
 
 // TODO:
 // - Do some other reviews.
@@ -11,20 +13,6 @@ import { isValidElementType } from 'react-is'
 // - add travis or maybe just use github or anything. low prio.
 // - add nextime the logic for returning a stores object as a key of createContainer to subscribe to all of the stores state. low prio.
 //   check the below logic.
-
-type InitialState<S> = S | (() => S)
-
-function isInitialStateAFunction<S>(
-    initialState: InitialState<S>
-): initialState is () => S {
-    return typeof initialState === 'function'
-}
-
-type Callback = () => void
-
-function entries<T extends object, K extends keyof T>(object: T) {
-    return Object.entries(object) as [K, T[K]][]
-}
 
 type Reducer = {
     (state: any, action: any): any
@@ -72,54 +60,9 @@ type GetDispatch<
     K extends keyof B
 > = B[K]['dispatch']
 
-class RootStore<S> {
-    currentState: S
-    subscribers: Set<Callback> = new Set()
-
-    public constructor(initialState: S) {
-        this.currentState = initialState
-    }
-
-    public getState = () => {
-        return this.currentState
-    }
-
-    // We will create setState and dispatch on top of this.
-    public rootDispatch = (nextState: S) => {
-        this.currentState = nextState
-        this.subscribers.forEach((cb) => cb())
-    }
-
-    public subscribe = (cb: Callback) => {
-        this.subscribers.add(cb)
-        const cleanup = () => {
-            this.subscribers.delete(cb)
-        }
-        return cleanup
-    }
-
-    /* // This function will only be called once - in initial render of the Component. */
-    /* // This mimic the behaviuor of React.useState let say for lazily initialisation. */
-    public setInitialStateFromRoot = (init: InitialState<S>) => {
-        if (isInitialStateAFunction(init)) {
-            this.currentState = init()
-        } else {
-            this.currentState = init
-        }
-    }
-
-    public destroySubscribers = () => {
-        this.subscribers.clear()
-    }
-}
-
-function isContextType<T>(Context: React.Context<T>) {
-    return (
-        typeof Context === 'object' &&
-        isValidElementType(Context.Provider) &&
-        isValidElementType(Context.Consumer)
-    )
-}
+// ------------------------------------------------------------------//
+// ----------------------- createContainer --------------------------//
+// -----------------------------------------------------------------//
 
 function createContainer<T extends StoresConfiguration>(configuration: T) {
     invariant(
@@ -311,7 +254,6 @@ function useStoreSubscribe<
 }
 
 export {
-    isContextType,
     createContainer,
     useStoreState,
     useStoreDispatch,
