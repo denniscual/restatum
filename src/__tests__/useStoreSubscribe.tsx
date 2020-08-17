@@ -51,6 +51,33 @@ it('should invoke the passed callback to subscribe whenever the state will chang
     expect(fakeFn).toHaveBeenCalledTimes(1)
 })
 
+it('should invoke the passed callback with the latest state provided as arugment', () => {
+    const fakeFn = jest.fn()
+    const { result } = renderHook(() => useApp(fakeFn), {
+        wrapper: AppContainer.StoresProvider,
+    })
+
+    expect(result.current[0]).toBeFalsy()
+    expect(typeof result.current[1]).toBe('function')
+
+    // update then assert
+    act(() => {
+        result.current[1](true)
+    })
+    expect(result.current[0]).toBeTruthy()
+    expect(fakeFn).toHaveBeenCalledTimes(1)
+    expect(fakeFn).toHaveBeenCalledWith(true)
+    fakeFn.mockClear()
+
+    // update then assert
+    act(() => {
+        result.current[1](false)
+    })
+    expect(result.current[0]).not.toBeTruthy()
+    expect(fakeFn).toHaveBeenCalledTimes(1)
+    expect(fakeFn).toHaveBeenCalledWith(false)
+})
+
 it('should not rerender the Component which subscribes to a state', () => {
     /**
      * Goals:

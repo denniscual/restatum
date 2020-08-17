@@ -1,9 +1,17 @@
 import { isInitialStateAFunction } from './utils'
 import { Callback, InitialState } from './utils/types'
 
-export default class Store<S> {
-    currentState: S
-    subscribers: Set<Callback> = new Set()
+interface IRootStore<S> {
+    getState(): S
+    rootDispatch(nextState: S): void
+    subscribe(cb: Callback): Callback
+    setInitialStateFromRoot(init: InitialState<S>): void
+    destroySubscribers: Callback
+}
+
+export default class RootStore<S> implements IRootStore<S> {
+    private currentState: S
+    private subscribers: Set<Callback> = new Set()
 
     public constructor(initialState: S) {
         this.currentState = initialState
@@ -21,10 +29,10 @@ export default class Store<S> {
 
     public subscribe = (cb: Callback) => {
         this.subscribers.add(cb)
-        const cleanup = () => {
+        const cancel = () => {
             this.subscribers.delete(cb)
         }
-        return cleanup
+        return cancel
     }
 
     /* // This function will only be called once - in initial render of the Component. */

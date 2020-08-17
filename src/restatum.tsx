@@ -29,12 +29,8 @@ type StoresConfiguration<T = any> = {
     }
 }
 
-type Store<S, R> = {
-    getState: () => S
+interface Store<S, R> extends Omit<RootStore<S>, 'rootDispatch'> {
     dispatch: React.Dispatch<InitActionType<S, R>>
-    subscribe: (cb: Callback) => Callback
-    destroySubscribers: Callback
-    setInitialStateFromRoot: (nextState: S) => void
 }
 
 type Stores<T extends StoresConfiguration> = {
@@ -50,20 +46,29 @@ type StoreAccessors<T extends StoresConfiguration, B extends Stores<T>> = {
 
 type StoreAccessor<B, K> = { Context: React.Context<B | null>; getKey: () => K }
 
-type GetState<
-    B extends Stores<StoresConfiguration>,
-    K extends keyof B
-> = ReturnType<B[K]['getState']>
-
-type GetDispatch<
-    B extends Stores<StoresConfiguration>,
-    K extends keyof B
-> = B[K]['dispatch']
-
 // ------------------------------------------------------------------//
 // ----------------------- createContainer --------------------------//
 // -----------------------------------------------------------------//
 
+/**
+ * Creates a stores container. A `Container` holds the stores provided on the configuration/arguments.
+ * It returns `storeAccessors` and a `StoresProvider` that restricts the access of the stores.
+ *
+ * @example
+ *
+ * import { createContainer } from 'restatum'
+ *
+ * // toggle is storeAccessor which is used to access a store via hooks.
+ * const { StoresProvider, toggle } = createContainer({
+ *   toggle: {
+ *     initialState: false
+ *   }
+ * })
+ * export default {
+ *   StoresProvider,
+ *   toggle
+ * }
+ */
 function createContainer<T extends StoresConfiguration>(configuration: T) {
     invariant(
         typeof configuration === 'object' && !Array.isArray(configuration),
@@ -180,6 +185,16 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
 // --------------------------- Hooks -------------------------------//
 // -----------------------------------------------------------------//
 
+type GetState<
+    B extends Stores<StoresConfiguration>,
+    K extends keyof B
+> = ReturnType<B[K]['getState']>
+
+type GetDispatch<
+    B extends Stores<StoresConfiguration>,
+    K extends keyof B
+> = B[K]['dispatch']
+
 function useStore<B extends Stores<StoresConfiguration>, K extends keyof B>(
     storeAccessor: StoreAccessor<B, K>
 ) {
@@ -198,6 +213,21 @@ function useStore<B extends Stores<StoresConfiguration>, K extends keyof B>(
     return stores[storeAccessor.getKey()]
 }
 
+/**
+ * A hook to access the store's state value. Component which uses the hook is automatically bound to the state.
+ * Means, the Component will rerender whenever there is stata change.
+ * It returns state value.
+ *
+ * @example
+ *
+ * import { useStoreValue } from 'restatum'
+ * import AppContainer from './appContainer'
+ *
+ * export const ToggleComponent = () => {
+ *   const toggle = useStoreValue(AppContainer.toggle)
+ *   return <div>Toggle is { toggle ? 'on' : 'off' }</div>
+ * }
+ */
 function useStoreValue<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
@@ -222,6 +252,25 @@ function useStoreValue<
     return state
 }
 
+/**
+ * A hook to access the store's state value and its associated dispatch. Component which uses the hook is automatically bound to the state.
+ * It returns a tuple type for state and dispatch.
+ *
+ * @example
+ *
+ * import { useStoreState } from 'restatum'
+ * import AppContainer from './appContainer'
+ *
+ * export const ToggleComponent = () => {
+ *   const [toggle, setToggle] = useStoreState(AppContainer.toggle)
+ *   return (
+ *     <div>
+ *       <span>Toggle is { toggle ? 'on' : 'off' }</span>
+ *       <button onClick={() => setToggle(p => !p)}></button>
+ *     </div>
+ *   )
+ * }
+ */
 function useStoreState<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
@@ -234,6 +283,22 @@ function useStoreState<
     return [state, dispatch]
 }
 
+/**
+ * A hook to access the store's dispatch. Component which uses the hook is not bound to the state.
+ * Whenever there is a state change, the Component uses the hook will not rerender.
+ *
+ * @example
+ *
+ * import { useStoreState } from 'restatum'
+ * import AppContainer from './appContainer'
+ *
+ * export const ToggleComponent = () => {
+ *   const setToggle = useStoreDispatch(AppContainer.toggle)
+ *   return (
+ *     <button onClick={() => setToggle(p => !p)}></button>
+ *   )
+ * }
+ */
 function useStoreDispatch<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
@@ -242,15 +307,34 @@ function useStoreDispatch<
     return dispatch
 }
 
+/**
+ * A hook to subscribe to a store's state. Whenever there is a state change, the passed
+ * callback will execute but the Component will not rerender. It receives the latest state.
+ *
+ * @example
+ *
+ * import { useStoreState } from 'restatum'
+ * import AppContainer from './appContainer'
+ *
+ * export const ToggleComponent = () => {
+ *   useStoreSubscribe(AppContainer.toggle, state => console.log(state))
+ *   return (
+ *     <div>Hey! This is a Toggle Component</div>
+ *   )
+ * }
+ */
 function useStoreSubscribe<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
->(storeAccessor: StoreAccessor<B, K>, cb: Callback) {
-    const { subscribe } = useStore(storeAccessor)
+>(
+    storeAccessor: StoreAccessor<B, K>,
+    cb: (state: GetState<B, K>) => void | Callback
+) {
+    const { subscribe, getState } = useStore(storeAccessor)
     React.useEffect(() => {
-        const cleanup = subscribe(cb)
+        const cleanup = subscribe(() => cb(getState()))
         return () => cleanup()
-    }, [cb, subscribe])
+    }, [cb, subscribe, getState])
 }
 
 export {
