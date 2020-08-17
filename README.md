@@ -257,4 +257,4 @@ callback will execute but the Component will not rerender. It receives the lates
 
 ## License
 
-MIT © [denniscual](https://github.com/denniscual)
+MIT © [denniscual](https://opensource.org/licenses/MIT)
