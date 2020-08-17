@@ -1,5 +1,4 @@
 # restatum
-> Enjoy managing your shared state with restatum
 
 [![NPM](https://img.shields.io/npm/v/restatum.svg)](https://www.npmjs.com/package/restatum) [![Build Status](https://travis-ci.org/denniscual/restatum.svg?branch=master)](https://travis-ci.org/denniscual/restatum)
 
