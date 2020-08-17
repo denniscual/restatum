@@ -1,4 +1,4 @@
-import {
+export {
     createContainer,
     useStoreState,
     useStoreDispatch,
@@ -6,10 +6,3 @@ import {
     useStoreSubscribe,
 } from './restatum'
 
-export {
-    createContainer,
-    useStoreState,
-    useStoreDispatch,
-    useStoreValue,
-    useStoreSubscribe,
-}
