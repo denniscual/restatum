@@ -140,7 +140,7 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
                         // The keys on the `initialStoresState` are all optional. We only want to
                         // compute the initialState for the available keys.
                         if (typeof storeState === 'undefined') {
-                            return
+                            continue
                         }
                         const ownStore = stores[key]
                         ownStore.setInitialStateFromRoot(storeState)
