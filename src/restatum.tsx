@@ -5,6 +5,9 @@ import { isContextType, entries } from './utils'
 import RootStore from './Store'
 import { Callback, InitialState } from './utils/types'
 
+// TODO:
+// - remove the initialState if there is a reducer fn. Put the initial state to the reducer as an optional paremeter just like redux. Make this as minor changes. 1.1.0
+
 type Reducer = {
     (state: any, action: any): any
 }
