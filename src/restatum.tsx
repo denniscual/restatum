@@ -1,7 +1,7 @@
 import React from 'react'
 import invariant from 'invariant'
 import { useSubscription } from 'use-subscription'
-import { isContextType, entries } from './utils'
+import { entries } from './utils'
 import RootStore from './Store'
 import { Callback, InitialState } from './utils/types'
 
@@ -179,21 +179,16 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
 type GetState<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
-> = ReturnType<B[K]['getState']>
+    > = ReturnType<B[K]['getState']>
 
 type GetDispatch<
     B extends Stores<StoresConfiguration>,
     K extends keyof B
-> = B[K]['dispatch']
+    > = B[K]['dispatch']
 
 function useStore<B extends Stores<StoresConfiguration>, K extends keyof B>(
     storeAccessor: StoreAccessor<B, K>
 ) {
-    invariant(
-        isContextType(storeAccessor.Context),
-        `Invalid Context type. Make sure that the passed Context is created by "React.createContext".`
-    )
-
     const stores = React.useContext(storeAccessor.Context)
 
     invariant(
