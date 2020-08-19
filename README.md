@@ -124,6 +124,21 @@ createContainer({
 
 [Check this sample in Codesandbox written in TS](https://codesandbox.io/s/vigilant-solomon-n4uvr?file=/src/App.tsx).
 
+## Things to consider
+
+Before using **restatum**, ask yourself first if you really need it. Start with local state,
+then hoist to the top, and then if the props drilling start to become messy, then go **restatum**. This 
+is your last resort!
+
+I would also not suggest to use **restatum** for managing your server state. There are lots 
+of great libraries out there which has great features like caching, deduping request, etc
+for your server state. 
+
+Some resources:
+- [react-query](https://github.com/tannerlinsley/react-query)
+- [swr](https://github.com/vercel/swr)
+
+And for complex Graphical editor software, check [redux](https://github.com/reduxjs/react-redux) and [recoil](https://github.com/facebookexperimental/Recoil).
 
 ## API
 
@@ -252,6 +267,7 @@ export const ToggleComponent = () => {
 
 A hook to subscribe to a store's state. Whenever there is a state change, the passed
 callback will execute but the Component will not rerender. It receives the latest state.
+
 
 
 ## License
