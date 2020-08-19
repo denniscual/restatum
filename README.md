@@ -130,7 +130,7 @@ Before using **restatum**, ask yourself first if you really need it. Start with 
 then hoist to the top, and then if the props drilling start to become messy, then go **restatum**. This 
 is your last resort!
 
-I would also not suggest to use **restatum** for managing your server state. There are lots 
+I would also suggest to not use **restatum** for managing your server state. There are lots 
 of great libraries out there which has great features like caching, deduping request, etc
 for your server state. 
 
