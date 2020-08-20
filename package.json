@@ -1,6 +1,6 @@
 {
     "name": "restatum",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Make easy to manage your shared state with restatum",
     "author": "denniscual",
     "license": "MIT",
@@ -62,7 +62,6 @@
     ],
     "dependencies": {
         "invariant": "^2.2.4",
-        "react-is": "^16.13.1",
         "use-subscription": "^1.4.1"
     }
 }
