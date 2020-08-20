@@ -63,3 +63,13 @@ it('should destroy all of the subscribers', () => {
     store.rootDispatch(true)
     expect(fk).toHaveBeenCalledTimes(0)
 })
+
+it('should reset the current state', () => {
+    expect(store.getState()).toBeTruthy()
+    // update the state
+    store.rootDispatch(false)
+    expect(store.getState()).not.toBeTruthy()
+    // reset the state
+    store.resetState()
+    expect(store.getState()).toBeTruthy()
+})
