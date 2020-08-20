@@ -7,6 +7,7 @@ import { Callback, InitialState } from './utils/types'
 
 // TODO:
 // - remove the initialState if there is a reducer fn. Put the initial state to the reducer as an optional paremeter just like redux. Make this as minor changes. 1.1.0
+// - create a nice error, connected to Class StoreAccesor, whenever the user will access the store outside the Provider.
 
 type Reducer = {
     (state: any, action: any): any
@@ -92,6 +93,7 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
                 subscribe: store.subscribe,
                 getState: store.getState,
                 setInitialStateFromRoot: store.setInitialStateFromRoot,
+                resetState: store.resetState,
             }
         }
 
@@ -120,9 +122,11 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
         }
     })
 
-    function destroySubscribersToAllStores() {
+    // This will reset the store state to the provided initial state on configuration.
+    function destroySubscribersAndResetTheStateToAllStores() {
         entries(stores).forEach(([, store]) => {
             store.destroySubscribers()
+            store.resetState()
         })
     }
 
@@ -157,7 +161,7 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
             []
         )
 
-        React.useEffect(() => destroySubscribersToAllStores, [])
+        React.useEffect(() => destroySubscribersAndResetTheStateToAllStores, [])
 
         return (
             <StoresContext.Provider value={stores}>

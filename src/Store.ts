@@ -10,10 +10,12 @@ interface IRootStore<S> {
 }
 
 export default class RootStore<S> implements IRootStore<S> {
+    private initialState: S
     private currentState: S
     private subscribers: Set<Callback> = new Set()
 
     public constructor(initialState: S) {
+        this.initialState = initialState
         this.currentState = initialState
     }
 
@@ -47,5 +49,9 @@ export default class RootStore<S> implements IRootStore<S> {
 
     public destroySubscribers = () => {
         this.subscribers.clear()
+    }
+
+    public resetState() {
+        this.currentState = this.initialState
     }
 }
