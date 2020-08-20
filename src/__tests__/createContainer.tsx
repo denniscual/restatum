@@ -1,8 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { createContainer, useStoreValue } from '../restatum'
-import { isContextType } from '../utils'
-import { isValidElementType } from 'react-is'
 // TODO: Move this import to a single file.
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
@@ -69,12 +67,9 @@ it('should return AppContainer which has StoresProvider key and the stores key',
      * has a key of "Context" and "getKey".
      * */
 
-    expect(isValidElementType(AppContainer.StoresProvider)).toBeTruthy()
     // Stores
     expect(AppContainer.toggle.getKey()).toBe('toggle')
-    expect(isContextType(AppContainer.toggle.Context)).toBeTruthy()
     expect(AppContainer.todos.getKey()).toBe('todos')
-    expect(isContextType(AppContainer.todos.Context)).toBeTruthy()
 })
 
 it('should use the initialState in createContainer', () => {
