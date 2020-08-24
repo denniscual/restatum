@@ -1,5 +1,5 @@
 import React from 'react'
-import { createContainer, useStoreState } from '../restatum'
+import { createStore, useStoreState } from '../core'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { fireEvent, render, screen } from '@testing-library/react'
 
@@ -10,7 +10,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 
 function runSetup() {
-    return createContainer({
+    return createStore({
         toggle: {
             initialState: false,
         },
@@ -20,7 +20,7 @@ function runSetup() {
 it('should return a tuple type with the state and the dispatch', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useStoreState(Container.toggle), {
-        wrapper: Container.StoresProvider,
+        wrapper: Container.StoreProvider,
     })
     const [toggle, setToggle] = result.current
 
@@ -32,7 +32,7 @@ it('should return a tuple type with the state and the dispatch', () => {
 it('should update the toggle state', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useStoreState(Container.toggle), {
-        wrapper: Container.StoresProvider,
+        wrapper: Container.StoreProvider,
     })
 
     act(() => {
@@ -55,7 +55,7 @@ it('should only rerender if the consumed state was changed', () => {
      was changed.
      *
     */
-    const Container = createContainer({
+    const Container = createStore({
         toggle: {
             initialState: false,
         },
@@ -91,10 +91,10 @@ it('should only rerender if the consumed state was changed', () => {
 
     function Root() {
         return (
-            <Container.StoresProvider>
+            <Container.StoreProvider>
                 <Toggle />
                 <Search />
-            </Container.StoresProvider>
+            </Container.StoreProvider>
         )
     }
 

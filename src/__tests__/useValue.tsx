@@ -1,5 +1,5 @@
 import React from 'react'
-import { createContainer, useStoreDispatch, useStoreValue } from '../restatum'
+import { createStore, useDispatch, useValue } from '../core'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { fireEvent, render, screen } from '@testing-library/react'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
@@ -9,7 +9,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 
 function runSetup() {
-    return createContainer({
+    return createStore({
         toggle: {
             initialState: false,
         },
@@ -18,8 +18,8 @@ function runSetup() {
 
 it('should return the state', () => {
     const Container = runSetup()
-    const { result } = renderHook(() => useStoreValue(Container.toggle), {
-        wrapper: Container.StoresProvider,
+    const { result } = renderHook(() => useValue(Container.toggle), {
+        wrapper: Container.StoreProvider,
     })
 
     expect(result.current).toBeFalsy()
@@ -27,13 +27,13 @@ it('should return the state', () => {
 
 it('should get the updated state', () => {
     const Container = runSetup()
-    const { result } = renderHook(() => useStoreValue(Container.toggle), {
-        wrapper: Container.StoresProvider,
+    const { result } = renderHook(() => useValue(Container.toggle), {
+        wrapper: Container.StoreProvider,
     })
     const { result: anotherResult } = renderHook(
-        () => useStoreDispatch(Container.toggle),
+        () => useDispatch(Container.toggle),
         {
-            wrapper: Container.StoresProvider,
+            wrapper: Container.StoreProvider,
         }
     )
 
@@ -57,7 +57,7 @@ it('should only rerender if the consumed state was changed', () => {
      was changed.
      *
     */
-    const Container = createContainer({
+    const Container = createStore({
         toggle: {
             initialState: false,
         },
@@ -69,7 +69,7 @@ it('should only rerender if the consumed state was changed', () => {
     const handleToggleStateChange = jest.fn()
     // Toggle is subscribing to the `toggle`. Will only render if the toggle was changed.
     function Toggle() {
-        const toggle = useStoreValue(Container.toggle)
+        const toggle = useValue(Container.toggle)
         handleToggleStateChange()
         return (
             <span data-testid="toggle-text">
@@ -79,8 +79,8 @@ it('should only rerender if the consumed state was changed', () => {
     }
 
     function Actions() {
-        const setSearchKey = useStoreDispatch(Container.searchKey)
-        const setToggle = useStoreDispatch(Container.toggle)
+        const setSearchKey = useDispatch(Container.searchKey)
+        const setToggle = useDispatch(Container.toggle)
 
         return (
             <div>
@@ -94,10 +94,10 @@ it('should only rerender if the consumed state was changed', () => {
 
     function Root() {
         return (
-            <Container.StoresProvider>
+            <Container.StoreProvider>
                 <Toggle />
                 <Actions />
-            </Container.StoresProvider>
+            </Container.StoreProvider>
         )
     }
 

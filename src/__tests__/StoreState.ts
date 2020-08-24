@@ -1,9 +1,9 @@
-import Store from '../Store'
+import StoreState from '../StoreState'
 
-let store = new Store(true)
+let store = new StoreState(true)
 
 afterEach(() => {
-    store = new Store(true) as Store<boolean>
+    store = new StoreState(true) as StoreState<boolean>
 })
 
 it('should return the current initialState', () => {

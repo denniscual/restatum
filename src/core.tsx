@@ -2,7 +2,7 @@ import React from 'react'
 import invariant from 'invariant'
 import { useSubscription } from 'use-subscription'
 import { entries } from './utils'
-import RootStore from './Store'
+import RootStoreState from './StoreState'
 import { Callback, InitialState } from './utils/types'
 
 type Reducer = {
@@ -13,77 +13,82 @@ type InitActionType<S, R> = R extends (state: any, action: infer A) => void
     ? A
     : React.SetStateAction<S>
 
-type StoresConfiguration<T = any> = {
+type StoreConfiguration<T = any> = {
     [key in keyof T]: {
         initialState: any
         reducer?: Reducer
     }
 }
 
-interface Store<S, R> extends Omit<RootStore<S>, 'rootDispatch'> {
+interface StoreState<S, R> extends Omit<RootStoreState<S>, 'rootDispatch'> {
     dispatch: React.Dispatch<InitActionType<S, R>>
 }
 
-type Stores<T extends StoresConfiguration> = {
-    [K in keyof T]: Store<T[K]['initialState'], T[K]['reducer']>
+type StoreStateCollection<T extends StoreConfiguration> = {
+    [K in keyof T]: StoreState<T[K]['initialState'], T[K]['reducer']>
 }
 
-type StoreAccessor<B, K> = { Context: React.Context<B | null>; getKey: () => K }
+type StateAccessor<B, K> = { Context: React.Context<B | null>; getKey: () => K }
 
-type StoreAccessors<T extends StoresConfiguration, B extends Stores<T>> = {
-    [K in keyof T]: StoreAccessor<B, K>
+type StateAccessors<
+    T extends StoreConfiguration,
+    B extends StoreStateCollection<T>
+> = {
+    [K in keyof T]: StateAccessor<B, K>
 }
 
 // ------------------------------------------------------------------//
-// ----------------------- createContainer --------------------------//
+// ------------------------- createStore ---------------------------//
 // -----------------------------------------------------------------//
 
 /**
- * Creates a stores container. A `Container` holds the stores provided on the configuration/arguments.
- * It returns `storeAccessors` and a `StoresProvider` that restricts the access of the stores.
+ * Creates a store container. A `Container` holds the store which is configured based on the configuration/arguments.
+ * It returns `stateAccessors` and a `StoreProvider` that restricts the access of the stores.
  *
  * @example
  *
- * import { createContainer } from 'restatum'
+ * import { createStore } from 'restatum'
  *
- * // toggle is storeAccessor which is used to access a store via hooks.
- * const { StoresProvider, toggle } = createContainer({
+ * // toggle is stateAccessor which is used to access a store state via hooks.
+ * const { StoreProvider, toggle } = createStore({
  *   toggle: {
  *     initialState: false
  *   }
  * })
  * export default {
- *   StoresProvider,
+ *   StoreProvider,
  *   toggle
  * }
  */
-function createContainer<T extends StoresConfiguration>(configuration: T) {
+function createStore<T extends StoreConfiguration>(configuration: T) {
     invariant(
         typeof configuration === 'object' && !Array.isArray(configuration),
-        `Invalid configuration type. "createContainer" is expecting type object but receives ${typeof configuration}.`
+        `Invalid configuration type. "createStore" is expecting type object but receives ${typeof configuration}.`
     )
 
-    const stores: Stores<T> = {} as any
-    // This holds the Context and the key to get the correct store.
-    const storeAccessors: StoreAccessors<T, typeof stores> = {} as any
-    const StoresContext = React.createContext<typeof stores | null>(null)
+    const stateCollection: StoreStateCollection<T> = {} as any
+    // This holds the Context and the key to get the correct store state.
+    const stateAccessors: StateAccessors<T, typeof stateCollection> = {} as any
+    const StoreContext = React.createContext<typeof stateCollection | null>(
+        null
+    )
 
-    function addStoreAccessor(key: keyof T) {
+    function addStateStateAccessor(key: keyof T) {
         return {
-            Context: StoresContext,
+            Context: StoreContext,
             getKey() {
                 return key
             },
         }
     }
 
-    // Adding stores.
+    // Adding state.
     entries(configuration).forEach(([key, value]) => {
         // we use this value to access the Context inside the Component.
-        storeAccessors[key] = addStoreAccessor(key)
+        stateAccessors[key] = addStateStateAccessor(key)
 
-        const store = new RootStore(value.initialState)
-        function addStore() {
+        const store = new RootStoreState(value.initialState)
+        function addState() {
             return {
                 destroySubscribers: store.destroySubscribers,
                 subscribe: store.subscribe,
@@ -97,16 +102,16 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
         // to be able we can create the appropriate `dispatch` for the given state.
         if (value.reducer) {
             const { reducer } = value
-            stores[key] = {
-                ...addStore(),
+            stateCollection[key] = {
+                ...addState(),
                 dispatch(action: any) {
                     const nextState = reducer(store.getState(), action)
                     store.rootDispatch(nextState)
                 },
             }
         } else {
-            stores[key] = {
-                ...addStore(),
+            stateCollection[key] = {
+                ...addState(),
                 dispatch(value: any) {
                     if (typeof value === 'function') {
                         store.rootDispatch(value(store.getState()))
@@ -119,33 +124,33 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
     })
 
     // This will reset the store state to the provided initial state on configuration.
-    function destroySubscribersAndResetTheStateToAllStores() {
-        entries(stores).forEach(([, store]) => {
-            store.destroySubscribers()
-            store.resetState()
+    function destroySubscribersAndResetTheStateToAllStoreState() {
+        entries(stateCollection).forEach(([, storeState]) => {
+            storeState.destroySubscribers()
+            storeState.resetState()
         })
     }
 
-    function StoresProvider({
+    function StoreProvider({
         children,
-        initialStoresState,
+        initialStoreState,
     }: {
-        initialStoresState?: {
+        initialStoreState?: {
             [K in keyof T]?: InitialState<T[K]['initialState']>
         }
         children: React.ReactNode
     }) {
         function overrideInitialStoresState() {
-            if (initialStoresState) {
-                for (const key in initialStoresState) {
-                    const storeState = initialStoresState[key]
-                    // The keys on the `initialStoresState` are all optional. We only want to
+            if (initialStoreState) {
+                for (const key in initialStoreState) {
+                    const initState = initialStoreState[key]
+                    // The keys on the `initialStoreState` are all optional. We only want to
                     // compute the initialState for the available keys.
-                    if (typeof storeState === 'undefined') {
+                    if (typeof initState === 'undefined') {
                         continue
                     }
-                    const ownStore = stores[key]
-                    ownStore.setInitialStateFromRoot(storeState)
+                    const ownStore = stateCollection[key]
+                    ownStore.setInitialStateFromRoot(initState)
                 }
             }
         }
@@ -157,18 +162,21 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
         }
         isThisInitialRenderRef.current = false
 
-        React.useEffect(() => destroySubscribersAndResetTheStateToAllStores, [])
+        React.useEffect(
+            () => destroySubscribersAndResetTheStateToAllStoreState,
+            []
+        )
 
         return (
-            <StoresContext.Provider value={stores}>
+            <StoreContext.Provider value={stateCollection}>
                 {children}
-            </StoresContext.Provider>
+            </StoreContext.Provider>
         )
     }
 
     return {
-        StoresProvider: StoresProvider,
-        ...storeAccessors,
+        StoreProvider,
+        ...stateAccessors,
     }
 }
 
@@ -177,48 +185,49 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
 // -----------------------------------------------------------------//
 
 type GetState<
-    B extends Stores<StoresConfiguration>,
+    B extends StoreStateCollection<StoreConfiguration>,
     K extends keyof B
 > = ReturnType<B[K]['getState']>
 
 type GetDispatch<
-    B extends Stores<StoresConfiguration>,
+    B extends StoreStateCollection<StoreConfiguration>,
     K extends keyof B
 > = B[K]['dispatch']
 
-function useStore<B extends Stores<StoresConfiguration>, K extends keyof B>(
-    storeAccessor: StoreAccessor<B, K>
-) {
-    const stores = React.useContext(storeAccessor.Context)
+function useStore<
+    B extends StoreStateCollection<StoreConfiguration>,
+    K extends keyof B
+>(stateAccessor: StateAccessor<B, K>) {
+    const stores = React.useContext(stateAccessor.Context)
 
     invariant(
         stores,
-        `"stores" is undefined. Make sure "storeAccessor" is created by "createContainer".`
+        `"stores" is undefined. Make sure "stateAccessor" is created by "createStore".`
     )
 
-    return stores[storeAccessor.getKey()]
+    return stores[stateAccessor.getKey()]
 }
 
 /**
- * A hook to access the store's state value. Component which uses the hook is automatically bound to the state.
+ * A hook to access the store state value. Component which uses the hook is automatically bound to the state.
  * Means, the Component will rerender whenever there is stata change.
  * It returns state value.
  *
  * @example
  *
- * import { useStoreValue } from 'restatum'
+ * import { useValue } from 'restatum'
  * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
- *   const toggle = useStoreValue(AppContainer.toggle)
+ *   const toggle = useValue(AppContainer.toggle)
  *   return <div>Toggle is { toggle ? 'on' : 'off' }</div>
  * }
  */
-function useStoreValue<
-    B extends Stores<StoresConfiguration>,
+function useValue<
+    B extends StoreStateCollection<StoreConfiguration>,
     K extends keyof B
->(storeAccessor: StoreAccessor<B, K>): GetState<B, K> {
-    const { getState, subscribe } = useStore(storeAccessor)
+>(stateAccessor: StateAccessor<B, K>): GetState<B, K> {
+    const { getState, subscribe } = useStore(stateAccessor)
 
     // Memoize to avoid removing and re-adding subscriptions each time this hook is called.
     const subscription = React.useMemo(
@@ -239,7 +248,7 @@ function useStoreValue<
 }
 
 /**
- * A hook to access the store's state value and its associated dispatch. Component which uses the hook is automatically bound to the state.
+ * A hook to access the store state value and its associated dispatch. Component which uses the hook is automatically bound to the state.
  * It returns a tuple type for state and dispatch.
  *
  * @example
@@ -258,19 +267,19 @@ function useStoreValue<
  * }
  */
 function useStoreState<
-    B extends Stores<StoresConfiguration>,
+    B extends StoreStateCollection<StoreConfiguration>,
     K extends keyof B
->(storeAccessor: {
+>(stateAccessor: {
     Context: React.Context<B | null>
     getKey: () => K
 }): [GetState<B, K>, GetDispatch<B, K>] {
-    const state = useStoreValue(storeAccessor)
-    const { dispatch } = useStore(storeAccessor)
+    const state = useValue(stateAccessor)
+    const { dispatch } = useStore(stateAccessor)
     return [state, dispatch]
 }
 
 /**
- * A hook to access the store's dispatch. Component which uses the hook is not bound to the state.
+ * A hook to access the store state dispatch. Component which uses the hook is not bound to the state.
  * Whenever there is a state change, the Component uses the hook will not rerender.
  *
  * @example
@@ -279,54 +288,48 @@ function useStoreState<
  * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
- *   const setToggle = useStoreDispatch(AppContainer.toggle)
+ *   const setToggle = useDispatch(AppContainer.toggle)
  *   return (
  *     <button onClick={() => setToggle(p => !p)}></button>
  *   )
  * }
  */
-function useStoreDispatch<
-    B extends Stores<StoresConfiguration>,
+function useDispatch<
+    B extends StoreStateCollection<StoreConfiguration>,
     K extends keyof B
->(storeAccessor: StoreAccessor<B, K>): GetDispatch<B, K> {
-    const { dispatch } = useStore(storeAccessor)
+>(stateAccessor: StateAccessor<B, K>): GetDispatch<B, K> {
+    const { dispatch } = useStore(stateAccessor)
     return dispatch
 }
 
 /**
- * A hook to subscribe to a store's state. Whenever there is a state change, the passed
+ * A hook to subscribe to a store state. Whenever there is a state change, the passed
  * callback will execute but the Component will not rerender. It receives the latest state.
  *
  * @example
  *
- * import { useStoreSubscribe } from 'restatum'
+ * import { useSubscribe } from 'restatum'
  * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
- *   useStoreSubscribe(AppContainer.toggle, state => console.log(state))
+ *   useSubscribe(AppContainer.toggle, state => console.log(state))
  *   return (
  *     <div>Hey! This is a Toggle Component</div>
  *   )
  * }
  */
-function useStoreSubscribe<
-    B extends Stores<StoresConfiguration>,
+function useSubscribe<
+    B extends StoreStateCollection<StoreConfiguration>,
     K extends keyof B
 >(
-    storeAccessor: StoreAccessor<B, K>,
+    stateAccessor: StateAccessor<B, K>,
     cb: (state: GetState<B, K>) => void | Callback
 ) {
-    const { subscribe, getState } = useStore(storeAccessor)
+    const { subscribe, getState } = useStore(stateAccessor)
     React.useEffect(() => {
         const cleanup = subscribe(() => cb(getState()))
         return () => cleanup()
     }, [cb, subscribe, getState])
 }
 
-export {
-    createContainer,
-    useStoreState,
-    useStoreDispatch,
-    useStoreValue,
-    useStoreSubscribe,
-}
+export { createStore, useStoreState, useDispatch, useValue, useSubscribe }

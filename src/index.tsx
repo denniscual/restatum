@@ -1,8 +1,8 @@
 export {
-    createContainer,
+    createStore,
     useStoreState,
-    useStoreDispatch,
-    useStoreValue,
-    useStoreSubscribe,
-} from './restatum'
+    useDispatch,
+    useValue,
+    useSubscribe,
+} from './core'
 

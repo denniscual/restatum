@@ -1,11 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import {
-    useStoreValue,
-    useStoreState,
-    useStoreDispatch,
-    createContainer,
-} from '../restatum'
+import { useValue, useStoreState, useDispatch, createStore } from '../core'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
@@ -22,7 +17,7 @@ type DeleteTodo = {
     payload: number
 }
 
-const Container = createContainer({
+const Container = createStore({
     search: {
         initialState: '',
     },
@@ -69,7 +64,7 @@ function Search() {
  */
 
 function Todo({ todo, idx }: { todo: string; idx: number }) {
-    const dispatch = useStoreDispatch(Container.todos)
+    const dispatch = useDispatch(Container.todos)
     return (
         <li>
             <label htmlFor={todo}>{todo}</label>
@@ -84,7 +79,7 @@ function Todo({ todo, idx }: { todo: string; idx: number }) {
 }
 
 function AddTodo() {
-    const dispatch = useStoreDispatch(Container.todos)
+    const dispatch = useDispatch(Container.todos)
     return (
         <footer>
             <button
@@ -97,7 +92,7 @@ function AddTodo() {
 }
 
 function Todos() {
-    const todos = useStoreValue(Container.todos)
+    const todos = useValue(Container.todos)
     return (
         <div>
             <div>
@@ -116,12 +111,12 @@ function Todos() {
 
 function renderSearchAndTodos() {
     return render(
-        <Container.StoresProvider>
+        <Container.StoreProvider>
             <main>
                 <Search />
                 <Todos />
             </main>
-        </Container.StoresProvider>
+        </Container.StoreProvider>
     )
 }
 
@@ -191,4 +186,3 @@ describe('reducer', () => {
         })
     })
 })
-

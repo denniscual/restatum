@@ -1,5 +1,5 @@
 import React from 'react'
-import { createContainer, useStoreDispatch, useStoreState } from '../restatum'
+import { createStore, useDispatch, useStoreState } from '../core'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { screen, render, fireEvent } from '@testing-library/react'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
@@ -9,7 +9,7 @@ import { screen, render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 
 function runSetup() {
-    const values = createContainer({
+    const values = createStore({
         toggle: {
             initialState: false,
         },
@@ -20,8 +20,8 @@ function runSetup() {
 
 it('should return the state dispatch', () => {
     const values = runSetup()
-    const { result } = renderHook(() => useStoreDispatch(values.toggle), {
-        wrapper: values.StoresProvider,
+    const { result } = renderHook(() => useDispatch(values.toggle), {
+        wrapper: values.StoreProvider,
     })
 
     expect(typeof result.current).toBe('function')
@@ -30,13 +30,13 @@ it('should return the state dispatch', () => {
 
 it('should update the toggle state', () => {
     const values = runSetup()
-    const { result } = renderHook(() => useStoreDispatch(values.toggle), {
-        wrapper: values.StoresProvider,
+    const { result } = renderHook(() => useDispatch(values.toggle), {
+        wrapper: values.StoreProvider,
     })
     const { result: anotherResult } = renderHook(
         () => useStoreState(values.toggle),
         {
-            wrapper: values.StoresProvider,
+            wrapper: values.StoreProvider,
         }
     )
 
@@ -60,7 +60,7 @@ it('should not rerender the Component which has an access to dispatch but not on
      was changed.
      *
     */
-    const Container = createContainer({
+    const Container = createStore({
         toggle: {
             initialState: false,
         },
@@ -71,7 +71,7 @@ it('should not rerender the Component which has an access to dispatch but not on
 
     const handleToggleStateChange = jest.fn()
     function ToggleButton() {
-        const setToggle = useStoreDispatch(Container.toggle)
+        const setToggle = useDispatch(Container.toggle)
         handleToggleStateChange()
         return <button onClick={() => setToggle(true)}>Update toggle</button>
     }
@@ -87,10 +87,10 @@ it('should not rerender the Component which has an access to dispatch but not on
 
     function Root() {
         return (
-            <Container.StoresProvider>
+            <Container.StoreProvider>
                 <Toggle />
                 <ToggleButton />
-            </Container.StoresProvider>
+            </Container.StoreProvider>
         )
     }
 

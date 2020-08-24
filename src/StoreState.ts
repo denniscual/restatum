@@ -1,7 +1,7 @@
 import { isInitialStateAFunction } from './utils'
 import { Callback, InitialState } from './utils/types'
 
-interface IRootStore<S> {
+interface IStoreState<S> {
     getState(): S
     rootDispatch(nextState: S): void
     subscribe(cb: Callback): Callback
@@ -9,7 +9,7 @@ interface IRootStore<S> {
     destroySubscribers: Callback
 }
 
-export default class RootStore<S> implements IRootStore<S> {
+export default class StoreState<S> implements IStoreState<S> {
     private initialState: S
     private currentState: S
     private subscribers: Set<Callback> = new Set()
