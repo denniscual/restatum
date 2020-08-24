@@ -139,27 +139,26 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
         }
         children: React.ReactNode
     }) {
-        React.useMemo(
-            function settingUpTheInitialStoresState() {
-                if (initialStoresState) {
-                    for (const key in initialStoresState) {
-                        const storeState = initialStoresState[key]
-                        // The keys on the `initialStoresState` are all optional. We only want to
-                        // compute the initialState for the available keys.
-                        if (typeof storeState === 'undefined') {
-                            continue
-                        }
-                        const ownStore = stores[key]
-                        ownStore.setInitialStateFromRoot(storeState)
+        function overrideInitialStoresState() {
+            if (initialStoresState) {
+                for (const key in initialStoresState) {
+                    const storeState = initialStoresState[key]
+                    // The keys on the `initialStoresState` are all optional. We only want to
+                    // compute the initialState for the available keys.
+                    if (typeof storeState === 'undefined') {
+                        continue
                     }
+                    const ownStore = stores[key]
+                    ownStore.setInitialStateFromRoot(storeState)
                 }
-            },
-            // We need to disable the eslint in here because we only want to execute the
-            // the setting of initialStoresState to their corresponding store
-            // once, in initial render of the Provider.
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            []
-        )
+            }
+        }
+
+        const isThisInitialRenderRef = React.useRef(true)
+        // We want to override the initial stores state only in initial render.
+        if (isThisInitialRenderRef.current) {
+            overrideInitialStoresState()
+        }
 
         React.useEffect(() => destroySubscribersAndResetTheStateToAllStores, [])
 
