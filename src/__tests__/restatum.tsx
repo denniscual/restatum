@@ -1,9 +1,9 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import {
-    useStoreValue,
+    useValue,
     useStoreState,
-    useStoreDispatch,
+    useDispatch,
     createContainer,
 } from '../restatum'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
@@ -69,7 +69,7 @@ function Search() {
  */
 
 function Todo({ todo, idx }: { todo: string; idx: number }) {
-    const dispatch = useStoreDispatch(Container.todos)
+    const dispatch = useDispatch(Container.todos)
     return (
         <li>
             <label htmlFor={todo}>{todo}</label>
@@ -84,7 +84,7 @@ function Todo({ todo, idx }: { todo: string; idx: number }) {
 }
 
 function AddTodo() {
-    const dispatch = useStoreDispatch(Container.todos)
+    const dispatch = useDispatch(Container.todos)
     return (
         <footer>
             <button
@@ -97,7 +97,7 @@ function AddTodo() {
 }
 
 function Todos() {
-    const todos = useStoreValue(Container.todos)
+    const todos = useValue(Container.todos)
     return (
         <div>
             <div>
@@ -116,12 +116,12 @@ function Todos() {
 
 function renderSearchAndTodos() {
     return render(
-        <Container.StoresProvider>
+        <Container.StoreProvider>
             <main>
                 <Search />
                 <Todos />
             </main>
-        </Container.StoresProvider>
+        </Container.StoreProvider>
     )
 }
 

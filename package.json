@@ -1,6 +1,6 @@
 {
     "name": "restatum",
-    "version": "1.0.8",
+    "version": "2.0.0",
     "description": "Make easy to manage your shared state with restatum",
     "author": "denniscual",
     "license": "MIT",

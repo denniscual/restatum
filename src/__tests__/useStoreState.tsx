@@ -20,7 +20,7 @@ function runSetup() {
 it('should return a tuple type with the state and the dispatch', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useStoreState(Container.toggle), {
-        wrapper: Container.StoresProvider,
+        wrapper: Container.StoreProvider,
     })
     const [toggle, setToggle] = result.current
 
@@ -32,7 +32,7 @@ it('should return a tuple type with the state and the dispatch', () => {
 it('should update the toggle state', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useStoreState(Container.toggle), {
-        wrapper: Container.StoresProvider,
+        wrapper: Container.StoreProvider,
     })
 
     act(() => {
@@ -91,10 +91,10 @@ it('should only rerender if the consumed state was changed', () => {
 
     function Root() {
         return (
-            <Container.StoresProvider>
+            <Container.StoreProvider>
                 <Toggle />
                 <Search />
-            </Container.StoresProvider>
+            </Container.StoreProvider>
         )
     }
 

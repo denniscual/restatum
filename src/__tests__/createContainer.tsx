@@ -1,6 +1,6 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { createContainer, useStoreValue } from '../restatum'
+import { render, screen } from '@testing-library/react'
+import { createContainer, useValue } from '../restatum'
 // TODO: Move this import to a single file.
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
@@ -34,7 +34,7 @@ function createApp({
     })
 
     function Todos() {
-        const todos = useStoreValue(AppContainer.todos)
+        const todos = useValue(AppContainer.todos)
         return (
             <ul data-testid="todos">
                 {todos.map((todo) => (
@@ -46,24 +46,23 @@ function createApp({
 
     function App() {
         return (
-            <AppContainer.StoresProvider
-                // @ts-ignore
-                initialStoresState={{
+            <AppContainer.StoreProvider
+                initialStoreState={{
                     toggle,
                     todos,
                 }}
             >
                 <Todos />
-            </AppContainer.StoresProvider>
+            </AppContainer.StoreProvider>
         )
     }
 
     return App
 }
 
-it('should return AppContainer which has StoresProvider key and the stores key', () => {
+it('should return AppContainer which has StoreProvider key and the stores key', () => {
     /**
-     * "ToggleContainer" must return "StoresProvider". Container holds the stores and every store
+     * "ToggleContainer" must return "StoreProvider". Container holds the stores and every store
      * has a key of "Context" and "getKey".
      * */
 
@@ -82,7 +81,7 @@ it('should use the initialState in createContainer', () => {
     expect(screen.getByTestId('todos')).toBeEmpty()
 })
 
-it('should override the initialState in createContainer if we passed initialState to the StoresProvider', () => {
+it('should override the initialState in createContainer if we passed initialState to the StoreProvider', () => {
     const App = createApp({
         todos: ['zion', 'irish', 'dennis'],
     })

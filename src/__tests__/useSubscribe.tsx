@@ -2,9 +2,9 @@ import React from 'react'
 import { renderHook, act } from '@testing-library/react-hooks'
 import {
     createContainer,
-    useStoreSubscribe,
+    useSubscribe,
     useStoreState,
-    useStoreDispatch,
+    useDispatch,
 } from '../restatum'
 import { screen, render, fireEvent } from '@testing-library/react'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
@@ -21,7 +21,7 @@ const AppContainer = createContainer({
 
 function useApp(cb: () => void) {
     const storeState = useStoreState(AppContainer.toggle)
-    useStoreSubscribe(AppContainer.toggle, cb)
+    useSubscribe(AppContainer.toggle, cb)
 
     return storeState
 }
@@ -29,7 +29,7 @@ function useApp(cb: () => void) {
 it('should invoke the passed callback to subscribe whenever the state will changed', () => {
     const fakeFn = jest.fn()
     const { result } = renderHook(() => useApp(fakeFn), {
-        wrapper: AppContainer.StoresProvider,
+        wrapper: AppContainer.StoreProvider,
     })
 
     expect(result.current[0]).toBeFalsy()
@@ -54,7 +54,7 @@ it('should invoke the passed callback to subscribe whenever the state will chang
 it('should invoke the passed callback with the latest state provided as arugment', () => {
     const fakeFn = jest.fn()
     const { result } = renderHook(() => useApp(fakeFn), {
-        wrapper: AppContainer.StoresProvider,
+        wrapper: AppContainer.StoreProvider,
     })
 
     expect(result.current[0]).toBeFalsy()
@@ -95,9 +95,9 @@ it('should not rerender the Component which subscribes to a state', () => {
     const subscribeToToggleState = jest.fn()
 
     function ToggleButton() {
-        const setToggle = useStoreDispatch(Container.toggle)
+        const setToggle = useDispatch(Container.toggle)
         handleToggleStateChange()
-        useStoreSubscribe(Container.toggle, subscribeToToggleState)
+        useSubscribe(Container.toggle, subscribeToToggleState)
         return <button onClick={() => setToggle(true)}>Update toggle</button>
     }
 
@@ -112,10 +112,10 @@ it('should not rerender the Component which subscribes to a state', () => {
 
     function Root() {
         return (
-            <Container.StoresProvider>
+            <Container.StoreProvider>
                 <Toggle />
                 <ToggleButton />
-            </Container.StoresProvider>
+            </Container.StoreProvider>
         )
     }
 
