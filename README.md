@@ -15,7 +15,7 @@ yarn add restatum
 ```tsx
 import { createContainer } from 'restatum'
 
-const CounterContainer = createContainer({
+const AppContainer = createContainer({
     count: {
         initialState: 0,
     },
@@ -24,13 +24,13 @@ const CounterContainer = createContainer({
 
 ### Wrap your React tree
 ```jsx
-import CounterContainer from './AppContainer'
+import AppContainer from './AppContainer'
 
 function App() {
     return (
-        <CounterContainer.StoresProvider>
+        <AppContainer.StoresProvider>
             <Counter />
-        </CounterContainer.StoresProvider>
+        </AppContainer.StoresProvider>
     )
 }
 ```
@@ -38,10 +38,10 @@ function App() {
 ### Lastly, bind your Components!
 ```jsx
 import { useStoreState } from 'restatum'
-import CounterContainer from './AppContainer'
+import AppContainer from './AppContainer'
 
 function Counter() {
-    const [count, setCount] = useStoreState(CounterContainer.count)
+    const [count, setCount] = useStoreState(AppContainer.count)
     return (
         <div>
             <span>Count: {count}</span>
@@ -55,12 +55,12 @@ function Counter() {
   - simple and uses hooks for consuming your state.
   - uses same approach like `React.useState` and `React.useReducer`.
   - having multiple stores instead of giant single store can make your App more performant.
-  - wraps your React tree to distinguish what Components are accessing the stores.
+  - more explicit via using `React.Context` to distinguish what Components can access the stores.
 
 ## Recipes
 
 ### Reducer sample
-Above, we uses `React.useState` approach. This is the simple form of managing your state with restatum. 
+Above, we used `React.useState` approach. This is the simple form of managing your state with restatum. 
 If you want to manage your state just like `React.useReducer`, then pass a `reducer` method to a store 
 configuration.
 
@@ -108,7 +108,7 @@ this feature.
 **restatum** is written via Typescript. It has great support for type checking and documentation.
 
 A tip for typescript-user when creating `Container`, in some cases you need to explicitly type the `initialState` and the 
-`reducer` so that typescript can pick the correct type of the store's state. You can do this using the `const assertion`. 
+`reducer` so that typescript can pick the correct type of the store's state. You can do this using the [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions). 
 
 ```tsx
 createContainer({
@@ -127,8 +127,8 @@ createContainer({
 ## Things to consider
 
 Before using **restatum**, ask yourself first if you really need it. Start with local state,
-then hoist to the top, and then if the props drilling start to become messy, then go **restatum**. This 
-is your last resort!
+then hoist to the top. And then if the props drilling and managing these state start to 
+get messy, then go to **restatum**. This is your last resort!
 
 I would also suggest to not use **restatum** for managing your server state. There are lots 
 of great libraries out there which has great features like caching, deduping request, etc
@@ -138,7 +138,7 @@ Some resources:
 - [react-query](https://github.com/tannerlinsley/react-query)
 - [swr](https://github.com/vercel/swr)
 
-And for complex Graphical editor software, check [redux](https://github.com/reduxjs/react-redux) and [recoil](https://github.com/facebookexperimental/Recoil).
+And for complex UI prototyping software, check [redux](https://github.com/reduxjs/react-redux) and [recoil](https://github.com/facebookexperimental/Recoil).
 
 ## API
 
@@ -268,6 +268,18 @@ export const ToggleComponent = () => {
 A hook to subscribe to a store's state. Whenever there is a state change, the passed
 callback will execute but the Component will not rerender. It receives the latest state.
 
+
+```jsx
+import { useStoreSubscribe } from 'restatum'
+import AppContainer from './AppContainer'
+ 
+export const ToggleComponent = () => {
+  useStoreSubscribe(AppContainer.toggle, state => console.log('current state', state))
+  return (
+    <div>Hey! This is a Toggle Component</div>
+  )
+}
+```
 
 
 ## License
