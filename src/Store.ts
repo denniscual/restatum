@@ -51,7 +51,7 @@ export default class RootStore<S> implements IRootStore<S> {
         this.subscribers.clear()
     }
 
-    public resetState() {
+    public resetState = () => {
         this.currentState = this.initialState
     }
 }
