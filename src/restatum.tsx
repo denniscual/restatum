@@ -159,6 +159,7 @@ function createContainer<T extends StoresConfiguration>(configuration: T) {
         if (isThisInitialRenderRef.current) {
             overrideInitialStoresState()
         }
+        isThisInitialRenderRef.current = false
 
         React.useEffect(() => destroySubscribersAndResetTheStateToAllStores, [])
 

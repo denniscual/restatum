@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { createContainer, useStoreValue } from '../restatum'
 // TODO: Move this import to a single file.
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
@@ -17,7 +17,7 @@ const AppContainer = createContainer({
     },
 })
 
-function renderApp({
+function createApp({
     toggle = false,
     todos = [],
 }: {
@@ -58,7 +58,7 @@ function renderApp({
         )
     }
 
-    return render(<App />)
+    return App
 }
 
 it('should return AppContainer which has StoresProvider key and the stores key', () => {
@@ -73,17 +73,21 @@ it('should return AppContainer which has StoresProvider key and the stores key',
 })
 
 it('should use the initialState in createContainer', () => {
-    renderApp({
+    const App = createApp({
         todos: [],
     })
+
+    render(<App />)
 
     expect(screen.getByTestId('todos')).toBeEmpty()
 })
 
 it('should override the initialState in createContainer if we passed initialState to the StoresProvider', () => {
-    renderApp({
+    const App = createApp({
         todos: ['zion', 'irish', 'dennis'],
     })
+
+    render(<App />)
 
     expect(screen.getByTestId('todos')).not.toBeEmpty()
     expect(screen.getByText('zion')).toBeInTheDocument()
@@ -91,4 +95,21 @@ it('should override the initialState in createContainer if we passed initialStat
     expect(screen.getByText('dennis')).toBeInTheDocument()
 })
 
-it.todo('should invoke the init fn only once when the Components gets mounted')
+it('should invoke the init todos fn only once in initial render', () => {
+    const initTodosFn = jest.fn().mockReturnValue(['zion', 'irish', 'dennis'])
+    const App = createApp({
+        todos: initTodosFn,
+    })
+
+    // `initTodosFn` must be invoked in initial render.
+    const { rerender } = render(<App />)
+    expect(initTodosFn).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('todos')).not.toBeEmpty()
+    expect(screen.getByText('zion')).toBeInTheDocument()
+    expect(screen.getByText('irish')).toBeInTheDocument()
+    expect(screen.getByText('dennis')).toBeInTheDocument()
+
+    // If the Component gets re-render, the `initTodosFn` will not invoke again.
+    rerender(<App />)
+    expect(initTodosFn).toHaveBeenCalledTimes(1)
+})
