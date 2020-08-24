@@ -120,7 +120,7 @@ And for complex UI prototyping software, check [redux](https://github.com/reduxj
 <details>
   <summary>Expand parameters</summary>
 
-  `createStore(configuration: StoresConfiguration) => Container`
+  `createStore(configuration: StoreConfiguration) => Container`
 </details>
 
 
@@ -161,7 +161,7 @@ function App() {
 ```
 
 appStore.toggle - property is a `StateAccessor` object. Use this one if you want to access the store state or subcribe 
-to the state chagne inside the Component, via passing this object as an argument to the hooks.
+to the state change inside the Component, via passing this object as an argument to the hooks.
 
 ### useStoreState
 <details>
