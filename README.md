@@ -155,7 +155,7 @@ It takes an configuration object which defines the config of every stores. It re
 and a `StoresProvider` that provides a scope for the access of the stores.
 
 ```jsx
-const Container = createContainer({
+const AppContainer = createContainer({
     toggle: {
         initialState: true
     }
@@ -166,7 +166,7 @@ toggle - property takes an object which has `initialState`. It can also accepts 
 This object defines on how we want to manage the state.  If no `reducer` is provided, the behavior will be 
 the same like `React.useState`.
 
-Container.StoresProvider - holds the stores. Only the Components which are included to the tree can access the stores from Container. 
+AppContainer.StoresProvider - holds the stores. Only the Components which are included to the tree can access the stores from Container. 
 `StoresProvider` accepts an optional `initialStoresState`. If the prop is given, then the value passed will 
 override the `initialState` from the `configuration` object. It accepts the same type of `initialState` or 
 an `init` function which returns the `initialState`. This `init` is also invoked once, if the Components gets mounted.
@@ -186,7 +186,7 @@ function App() {
 }
 ```
 
-Container.toggle - property is a `StoreAccessor` object. Use this one if you want to access the store value or subcribe 
+AppContainer.toggle - property is a `StoreAccessor` object. Use this one if you want to access the store value or subcribe 
 to the state chagne inside the Component, via passing this object as an argument to the hooks.
 
 ### useStoreState
