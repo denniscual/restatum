@@ -299,7 +299,7 @@ function useStoreDispatch<
  *
  * @example
  *
- * import { useStoreState } from 'restatum'
+ * import { useStoreSubscribe } from 'restatum'
  * import AppContainer from './AppContainer'
  *
  * export const ToggleComponent = () => {
