@@ -1,5 +1,5 @@
 import React from 'react'
-import { createContainer, useStoreState } from '../restatum'
+import { createStore, useStoreState } from '../core'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { fireEvent, render, screen } from '@testing-library/react'
 
@@ -10,7 +10,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 
 function runSetup() {
-    return createContainer({
+    return createStore({
         toggle: {
             initialState: false,
         },
@@ -55,7 +55,7 @@ it('should only rerender if the consumed state was changed', () => {
      was changed.
      *
     */
-    const Container = createContainer({
+    const Container = createStore({
         toggle: {
             initialState: false,
         },

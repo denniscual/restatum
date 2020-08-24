@@ -5,10 +5,6 @@ import { entries } from './utils'
 import RootStoreState from './StoreState'
 import { Callback, InitialState } from './utils/types'
 
-// TODO: Double check the change name variables. Also change the documentation
-// based on the new terminology. This changes would be a breaking changes! because we change some apis
-// which is not backward-compatible.
-
 type Reducer = {
     (state: any, action: any): any
 }
@@ -42,7 +38,7 @@ type StateAccessors<
 }
 
 // ------------------------------------------------------------------//
-// ----------------------- createContainer --------------------------//
+// ------------------------- createStore ---------------------------//
 // -----------------------------------------------------------------//
 
 /**
@@ -51,10 +47,10 @@ type StateAccessors<
  *
  * @example
  *
- * import { createContainer } from 'restatum'
+ * import { createStore } from 'restatum'
  *
  * // toggle is stateAccessor which is used to access a store state via hooks.
- * const { StoreProvider, toggle } = createContainer({
+ * const { StoreProvider, toggle } = createStore({
  *   toggle: {
  *     initialState: false
  *   }
@@ -64,10 +60,10 @@ type StateAccessors<
  *   toggle
  * }
  */
-function createContainer<T extends StoreConfiguration>(configuration: T) {
+function createStore<T extends StoreConfiguration>(configuration: T) {
     invariant(
         typeof configuration === 'object' && !Array.isArray(configuration),
-        `Invalid configuration type. "createContainer" is expecting type object but receives ${typeof configuration}.`
+        `Invalid configuration type. "createStore" is expecting type object but receives ${typeof configuration}.`
     )
 
     const stateCollection: StoreStateCollection<T> = {} as any
@@ -206,7 +202,7 @@ function useStore<
 
     invariant(
         stores,
-        `"stores" is undefined. Make sure "stateAccessor" is created by "createContainer".`
+        `"stores" is undefined. Make sure "stateAccessor" is created by "createStore".`
     )
 
     return stores[stateAccessor.getKey()]
@@ -336,4 +332,4 @@ function useSubscribe<
     }, [cb, subscribe, getState])
 }
 
-export { createContainer, useStoreState, useDispatch, useValue, useSubscribe }
+export { createStore, useStoreState, useDispatch, useValue, useSubscribe }

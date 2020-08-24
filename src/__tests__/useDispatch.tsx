@@ -1,5 +1,5 @@
 import React from 'react'
-import { createContainer, useDispatch, useStoreState } from '../restatum'
+import { createStore, useDispatch, useStoreState } from '../core'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { screen, render, fireEvent } from '@testing-library/react'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
@@ -9,7 +9,7 @@ import { screen, render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 
 function runSetup() {
-    const values = createContainer({
+    const values = createStore({
         toggle: {
             initialState: false,
         },
@@ -60,7 +60,7 @@ it('should not rerender the Component which has an access to dispatch but not on
      was changed.
      *
     */
-    const Container = createContainer({
+    const Container = createStore({
         toggle: {
             initialState: false,
         },

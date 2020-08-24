@@ -1,11 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import {
-    useValue,
-    useStoreState,
-    useDispatch,
-    createContainer,
-} from '../restatum'
+import { useValue, useStoreState, useDispatch, createStore } from '../core'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
@@ -22,7 +17,7 @@ type DeleteTodo = {
     payload: number
 }
 
-const Container = createContainer({
+const Container = createStore({
     search: {
         initialState: '',
     },
@@ -191,4 +186,3 @@ describe('reducer', () => {
         })
     })
 })
-

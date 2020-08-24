@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { createContainer, useValue } from '../restatum'
+import { createStore, useValue } from '../core'
 // TODO: Move this import to a single file.
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
@@ -8,7 +8,7 @@ import { createContainer, useValue } from '../restatum'
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom/extend-expect'
 
-const AppContainer = createContainer({
+const AppContainer = createStore({
     toggle: {
         initialState: false,
     },
@@ -24,7 +24,7 @@ function createApp({
     toggle?: boolean | (() => boolean)
     todos?: string[] | (() => string[])
 }) {
-    const AppContainer = createContainer({
+    const AppContainer = createStore({
         toggle: {
             initialState: false,
         },
@@ -71,7 +71,7 @@ it('should return AppContainer which has StoreProvider key and the stores key', 
     expect(AppContainer.todos.getKey()).toBe('todos')
 })
 
-it('should use the initialState in createContainer', () => {
+it('should use the initialState in createStore', () => {
     const App = createApp({
         todos: [],
     })
@@ -81,7 +81,7 @@ it('should use the initialState in createContainer', () => {
     expect(screen.getByTestId('todos')).toBeEmpty()
 })
 
-it('should override the initialState in createContainer if we passed initialState to the StoreProvider', () => {
+it('should override the initialState in createStore if we passed initialState to the StoreProvider', () => {
     const App = createApp({
         todos: ['zion', 'irish', 'dennis'],
     })

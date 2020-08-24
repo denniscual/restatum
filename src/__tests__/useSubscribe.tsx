@@ -1,11 +1,6 @@
 import React from 'react'
 import { renderHook, act } from '@testing-library/react-hooks'
-import {
-    createContainer,
-    useSubscribe,
-    useStoreState,
-    useDispatch,
-} from '../restatum'
+import { createStore, useSubscribe, useStoreState, useDispatch } from '../core'
 import { screen, render, fireEvent } from '@testing-library/react'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
@@ -13,7 +8,7 @@ import { screen, render, fireEvent } from '@testing-library/react'
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom/extend-expect'
 
-const AppContainer = createContainer({
+const AppContainer = createStore({
     toggle: {
         initialState: false,
     },
@@ -85,7 +80,7 @@ it('should not rerender the Component which subscribes to a state', () => {
      was changed.
      *
     */
-    const Container = createContainer({
+    const Container = createStore({
         toggle: {
             initialState: false,
         },

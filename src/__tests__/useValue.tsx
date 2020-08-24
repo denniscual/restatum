@@ -1,5 +1,5 @@
 import React from 'react'
-import { createContainer, useDispatch, useValue } from '../restatum'
+import { createStore, useDispatch, useValue } from '../core'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { fireEvent, render, screen } from '@testing-library/react'
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
@@ -9,7 +9,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 
 function runSetup() {
-    return createContainer({
+    return createStore({
         toggle: {
             initialState: false,
         },
@@ -57,7 +57,7 @@ it('should only rerender if the consumed state was changed', () => {
      was changed.
      *
     */
-    const Container = createContainer({
+    const Container = createStore({
         toggle: {
             initialState: false,
         },
