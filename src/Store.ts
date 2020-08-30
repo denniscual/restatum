@@ -1,15 +1,14 @@
-import { isInitialStateAFunction } from './utils'
-import { Callback, InitialState } from './utils/types'
+type Callback = () => void
 
-interface IStoreState<S> {
+interface IStore<S> {
     getState(): S
-    rootDispatch(nextState: S): void
+    dispatch(nextState: S): void
     subscribe(cb: Callback): Callback
-    setInitialStateFromRoot(init: InitialState<S>): void
     destroySubscribers: Callback
+    setInitialStateFromRoot(nextState: S): void
 }
 
-export default class StoreState<S> implements IStoreState<S> {
+export default class Store<S> implements IStore<S> {
     private initialState: S
     private currentState: S
     private subscribers: Set<Callback> = new Set()
@@ -23,8 +22,7 @@ export default class StoreState<S> implements IStoreState<S> {
         return this.currentState
     }
 
-    // We will create setState and dispatch on top of this.
-    public rootDispatch = (nextState: S) => {
+    public dispatch = (nextState: S) => {
         this.currentState = nextState
         this.subscribers.forEach((cb) => cb())
     }
@@ -37,21 +35,15 @@ export default class StoreState<S> implements IStoreState<S> {
         return cancel
     }
 
-    /* // This function will only be called once - in initial render of the Component. */
-    /* // This mimic the behaviuor of React.useState let say for lazily initialisation. */
-    public setInitialStateFromRoot = (init: InitialState<S>) => {
-        if (isInitialStateAFunction(init)) {
-            this.currentState = init()
-        } else {
-            this.currentState = init
-        }
-    }
-
     public destroySubscribers = () => {
         this.subscribers.clear()
     }
 
     public resetState = () => {
         this.currentState = this.initialState
+    }
+
+    public setInitialStateFromRoot = (nextState: S) => {
+        this.currentState = nextState
     }
 }

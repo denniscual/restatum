@@ -47,7 +47,7 @@ function createApp({
     function App() {
         return (
             <AppContainer.StoreProvider
-                initialStoreState={{
+                initializeState={{
                     toggle,
                     todos,
                 }}
