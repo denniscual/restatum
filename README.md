@@ -1,46 +1,26 @@
-# restatum
+<h1 align="center">restatum</h1>
+<p align="center">State management library for lazy people</p>
 
-[![NPM](https://img.shields.io/npm/v/restatum.svg)](https://www.npmjs.com/package/restatum) [![Build Status](https://travis-ci.org/denniscual/restatum.svg?branch=master)](https://travis-ci.org/denniscual/restatum)
+<p align="center">
+	<a href="https://www.npmjs.com/package/restatum"><img src="https://img.shields.io/npm/v/restatum.svg" height="20"/></a>
+  <a href="https://travis-ci.org/denniscual/restatum"><img src="https://travis-ci.org/denniscual/restatum.svg?branch=master" height="20"/></a>
+ </p>
+ <br />
+ 
+### Basic example
 
-Managing your application state must be easy and straightforward. **restatum** is a minimal and fast library 
-which provides you these features in Reactish way. It uses same and well-known approach like [React.useState](https://reactjs.org/docs/hooks-reference.html#usestate) and [React.useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) for handling your state, so integrating it into your app is a breeze! [Sample in Codesandbox](https://codesandbox.io/s/serene-rgb-ok6qd?file=/src/App.js).
-
-```bash
-npm install --save restatum
-or
-yarn add restatum
-```
-
-### First, create a store
 ```tsx
-import { createStore } from 'restatum'
+import { createStore, useSt8 } from 'restatum'
 
+// 1️⃣ Create a store
 const appStore = createStore({
     count: {
         initialState: 0,
     },
 })
-```
-
-### Wrap your React tree
-```jsx
-import appStore from './appStore'
-
-function App() {
-    return (
-        <appStore.StoreProvider>
-            <Counter />
-        </appStore.StoreProvider>
-    )
-}
-```
-
-### Lastly, bind your Components!
-```jsx
-import { useSt8 } from 'restatum'
-import appStore from './appStore'
 
 function Counter() {
+    // 2️⃣ Bind your Component to the store state
     const [count, setCount] = useSt8(appStore.count)
     return (
         <div>
@@ -49,11 +29,27 @@ function Counter() {
         </div>
     )
 }
+
+function App() {
+    return (
+        // 3️⃣ Wrap your Components
+        <appStore.StoreProvider>
+            <Counter />
+        </appStore.StoreProvider>
+    )
+}
+```
+### Install
+
+```sh
+npm i restatum
+or
+yarn add restatum
 ```
 
-## Recipes
+### Recipes
 
-### Reducer sample
+#### Reducer sample
 Above, we used `React.useState` approach. This is the simple form of managing your state with restatum. 
 If you want to manage your state just like `React.useReducer`, then pass a `reducer` method to a store 
 configuration.
@@ -78,7 +74,7 @@ function Todos() {
 }
 ```
 
-### Typescript
+#### Typescript
 **restatum** is written via Typescript. It has great support for type checking and documentation.
 
 A tip for typescript-user when creating `Store`, in some cases you need to explicitly type the `initialState` and the 
@@ -98,7 +94,7 @@ createStore({
 
 [Check this sample in Codesandbox written in TS](https://codesandbox.io/s/vigilant-solomon-n4uvr?file=/src/App.tsx).
 
-## Things to consider
+### Things to consider
 
 Before using **restatum**, ask yourself first if you really need it. Start with local state,
 then hoist to the top. And then if the props drilling and managing these state start to 
@@ -114,13 +110,17 @@ Some resources:
 
 And for complex UI prototyping software, check [redux](https://github.com/reduxjs/react-redux) and [recoil](https://github.com/facebookexperimental/Recoil).
 
-## API
 
-### createStore
+
+### API
+
+#### createStore
 <details>
   <summary>Expand parameters</summary>
 
-  `createStore(configuration: StoreConfiguration) => Container`
+  ```tsx
+  function createStore(configuration: StoreConfiguration): Container
+  ```
 </details>
 
 
@@ -163,11 +163,13 @@ function App() {
 appStore.toggle - property is a `StateAccessor` object. Use this one if you want to access the store state or subcribe 
 to the state change inside the Component, via passing this object as an argument to the hooks.
 
-### useSt8
+#### useSt8
 <details>
   <summary>Expand parameters</summary>
 
-  `useSt8(stateAccessor: StateAccessor) => [state, dispatch]`
+  ```tsx
+  function useSt8(stateAccessor: StateAccessor): [state, dispatch]
+  ```
 </details>
 
 A hook to access the store state value and its associated dispatch. Component which uses the hook is automatically bound to the state.
@@ -188,11 +190,13 @@ export const ToggleComponent = () => {
 }
 ```
 
-### useValue
+#### useValue
 <details>
   <summary>Expand parameters</summary>
 
-  `useValue(stateAccessor: StateAccessor, selector?: (state: S) => V, isEqual?: (prevValue: V, nextValue: V ) => boolean)`
+  ```tsx
+  function useValue(stateAccessor: StateAccessor, selector?: (state: S) => V, isEqual?: (prevValue: V, nextValue: V ) => boolean): V
+  ```
 </details>
 
 A hook to access the store state value. Component which uses the hook is automatically bound to the state.
@@ -213,11 +217,13 @@ export const ToggleComponent = () => {
 
 ```
 
-### useDispatch 
+#### useDispatch 
 <details>
   <summary>Expand parameters</summary>
 
-  `useDispatch(stateAccessor: StateAccessor) => dispatch`
+  ```tsx
+  function useDispatch(stateAccessor: StateAccessor): dispatch
+  ```
 </details>
 
 A hook to access the store state dispatch. Component which uses the hook is not bound to the state.
@@ -236,11 +242,13 @@ export const ToggleComponent = () => {
 
 ```
 
-### useSubscribe 
+#### useSubscribe 
 <details>
   <summary>Expand parameters</summary>
 
-  `useSubscribe(stateAccessor: StateAccessor, cb: (nextState: S) => void) => void`
+  ```tsx
+  function useSubscribe(stateAccessor: StateAccessor, cb: (nextState: S) => void): void
+  ```
 </details>
 
 A hook to subscribe to a store state. Whenever there is a state change, the passed
@@ -259,6 +267,6 @@ export const ToggleComponent = () => {
 }
 ```
 
-## License
+### License
 
 MIT © [denniscual](https://github.com/denniscual/restatum/blob/master/LICENSE.MD)
