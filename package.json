@@ -1,6 +1,6 @@
 {
     "name": "restatum",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "State management library for lazy people",
     "author": "denniscual",
     "license": "MIT",
@@ -68,7 +68,6 @@
         "dist"
     ],
     "dependencies": {
-        "invariant": "^2.2.4",
-        "use-subscription": "^1.4.1"
+        "invariant": "^2.2.4"
     }
 }
