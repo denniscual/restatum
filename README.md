@@ -39,17 +39,11 @@ function App() {
     )
 }
 ```
-### Installation
-
-npm:
+### Install
 
 ```sh
 npm i restatum
-```
-
-Yarn:
-
-```sh
+or
 yarn add restatum
 ```
 
