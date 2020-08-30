@@ -39,6 +39,19 @@ function App() {
     )
 }
 ```
+### Installation
+
+npm:
+
+```sh
+npm i restatum
+```
+
+Yarn:
+
+```sh
+yarn add restatum
+```
 
 ### Recipes
 
@@ -102,6 +115,8 @@ Some resources:
 - [swr](https://github.com/vercel/swr)
 
 And for complex UI prototyping software, check [redux](https://github.com/reduxjs/react-redux) and [recoil](https://github.com/facebookexperimental/Recoil).
+
+
 
 ### API
 
