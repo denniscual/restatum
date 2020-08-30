@@ -7,52 +7,35 @@
  </p>
  <br />
  
-### Usage
+### Basic example
 
-#### Install
-
-```bash
-npm install --save restatum
-or
-yarn add restatum
-```
-
-#### Then, create a store
 ```tsx
-import { createStore } from 'restatum'
+import { createStore, useSt8 } from 'restatum'
 
+// 1️⃣ Create a store
 const appStore = createStore({
     count: {
         initialState: 0,
     },
 })
-```
-
-#### Wrap your React tree
-```jsx
-import appStore from './appStore'
-
-function App() {
-    return (
-        <appStore.StoreProvider>
-            <Counter />
-        </appStore.StoreProvider>
-    )
-}
-```
-
-#### Finally, bind your Components!
-```jsx
-import { useSt8 } from 'restatum'
-import appStore from './appStore'
 
 function Counter() {
+    // 2️⃣ Bind your Component to the store state
     const [count, setCount] = useSt8(appStore.count)
     return (
         <div>
             <span>Count: {count}</span>
             <button onClick={() => setCount((p) => ++p)}>Increment Counter</button>
         </div>
+    )
+}
+
+function App() {
+    return (
+        // 3️⃣ Wrap your Components
+        <appStore.StoreProvider>
+            <Counter />
+        </appStore.StoreProvider>
     )
 }
 ```
