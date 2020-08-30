@@ -6,6 +6,9 @@
   <a href="https://travis-ci.org/denniscual/restatum"><img src="https://travis-ci.org/denniscual/restatum.svg?branch=master" height="20"/></a>
  </p>
  <br />
+ <br/>
+
+<p align="center"><a href="https://github.com/nastyox/Rando.js#nastyox"><img src="https://i.imgur.com/71NQLg8.gif" /></a><a href="#nastyox"><img src="http://randojs.com/images/dropShadow.png" /></a></p><br/>
  
 ### Basic example
 
