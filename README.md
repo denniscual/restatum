@@ -98,7 +98,9 @@ createStore({
 
 Before using **restatum**, ask yourself first if you really need it. Start with local state,
 then hoist to the top. And then if the props drilling and managing these state start to 
-get messy, then go to **restatum**. This is your last resort!
+get messy, then go to **restatum**. This is your last resort! Note that its good to collocate your store.
+It means that put your store near to the tree, with `Context.Provider`, who consume it. And its also good practice to have 
+different stores for managing their particular feature.
 
 I would also suggest to not use **restatum** for managing your server state. There are lots 
 of great libraries out there which has great features like caching, deduping request, etc
