@@ -7,10 +7,9 @@
  </p>
  <br />
  
-## asfd
+### Usage
 
-Managing your application state must be easy and straightforward. **restatum** is a minimal and fast library 
-which provides you these features in Reactish way. It uses same and well-known approach like [React.useState](https://reactjs.org/docs/hooks-reference.html#usestate) and [React.useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) for handling your state, so integrating it into your app is a breeze! [Sample in Codesandbox](https://codesandbox.io/s/serene-rgb-ok6qd?file=/src/App.js).
+#### Install
 
 ```bash
 npm install --save restatum
@@ -18,7 +17,7 @@ or
 yarn add restatum
 ```
 
-### First, create a store
+#### Then, create a store
 ```tsx
 import { createStore } from 'restatum'
 
@@ -29,7 +28,7 @@ const appStore = createStore({
 })
 ```
 
-### Wrap your React tree
+#### Wrap your React tree
 ```jsx
 import appStore from './appStore'
 
@@ -42,7 +41,7 @@ function App() {
 }
 ```
 
-### Lastly, bind your Components!
+#### Finally, bind your Components!
 ```jsx
 import { useSt8 } from 'restatum'
 import appStore from './appStore'
@@ -58,9 +57,9 @@ function Counter() {
 }
 ```
 
-## Recipes
+### Recipes
 
-### Reducer sample
+#### Reducer sample
 Above, we used `React.useState` approach. This is the simple form of managing your state with restatum. 
 If you want to manage your state just like `React.useReducer`, then pass a `reducer` method to a store 
 configuration.
@@ -85,7 +84,7 @@ function Todos() {
 }
 ```
 
-### Typescript
+#### Typescript
 **restatum** is written via Typescript. It has great support for type checking and documentation.
 
 A tip for typescript-user when creating `Store`, in some cases you need to explicitly type the `initialState` and the 
@@ -105,7 +104,7 @@ createStore({
 
 [Check this sample in Codesandbox written in TS](https://codesandbox.io/s/vigilant-solomon-n4uvr?file=/src/App.tsx).
 
-## Things to consider
+### Things to consider
 
 Before using **restatum**, ask yourself first if you really need it. Start with local state,
 then hoist to the top. And then if the props drilling and managing these state start to 
@@ -121,9 +120,9 @@ Some resources:
 
 And for complex UI prototyping software, check [redux](https://github.com/reduxjs/react-redux) and [recoil](https://github.com/facebookexperimental/Recoil).
 
-## API
+### API
 
-### createStore
+#### createStore
 <details>
   <summary>Expand parameters</summary>
 
@@ -172,7 +171,7 @@ function App() {
 appStore.toggle - property is a `StateAccessor` object. Use this one if you want to access the store state or subcribe 
 to the state change inside the Component, via passing this object as an argument to the hooks.
 
-### useSt8
+#### useSt8
 <details>
   <summary>Expand parameters</summary>
 
@@ -199,7 +198,7 @@ export const ToggleComponent = () => {
 }
 ```
 
-### useValue
+#### useValue
 <details>
   <summary>Expand parameters</summary>
 
@@ -226,7 +225,7 @@ export const ToggleComponent = () => {
 
 ```
 
-### useDispatch 
+#### useDispatch 
 <details>
   <summary>Expand parameters</summary>
 
@@ -251,7 +250,7 @@ export const ToggleComponent = () => {
 
 ```
 
-### useSubscribe 
+#### useSubscribe 
 <details>
   <summary>Expand parameters</summary>
 
@@ -276,6 +275,6 @@ export const ToggleComponent = () => {
 }
 ```
 
-## License
+### License
 
 MIT © [denniscual](https://github.com/denniscual/restatum/blob/master/LICENSE.MD)
