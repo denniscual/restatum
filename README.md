@@ -1,6 +1,13 @@
-# restatum
+<h1 align="center">restatum</h1>
+<p align="center">State management library for lazy people</p>
 
-[![NPM](https://img.shields.io/npm/v/restatum.svg)](https://www.npmjs.com/package/restatum) [![Build Status](https://travis-ci.org/denniscual/restatum.svg?branch=master)](https://travis-ci.org/denniscual/restatum)
+<p align="center">
+	<a href="https://www.npmjs.com/package/restatum"><img src="https://img.shields.io/npm/v/restatum.svg" height="20"/></a>
+  <a href="https://travis-ci.org/denniscual/restatum"><img src="https://travis-ci.org/denniscual/restatum.svg?branch=master" height="20"/></a>
+ </p>
+ <br />
+ 
+## asfd
 
 Managing your application state must be easy and straightforward. **restatum** is a minimal and fast library 
 which provides you these features in Reactish way. It uses same and well-known approach like [React.useState](https://reactjs.org/docs/hooks-reference.html#usestate) and [React.useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) for handling your state, so integrating it into your app is a breeze! [Sample in Codesandbox](https://codesandbox.io/s/serene-rgb-ok6qd?file=/src/App.js).
@@ -120,7 +127,9 @@ And for complex UI prototyping software, check [redux](https://github.com/reduxj
 <details>
   <summary>Expand parameters</summary>
 
-  `createStore(configuration: StoreConfiguration) => Container`
+  ```tsx
+  function createStore(configuration: StoreConfiguration): Container
+  ```
 </details>
 
 
@@ -167,7 +176,9 @@ to the state change inside the Component, via passing this object as an argument
 <details>
   <summary>Expand parameters</summary>
 
-  `useSt8(stateAccessor: StateAccessor) => [state, dispatch]`
+  ```tsx
+  function useSt8(stateAccessor: StateAccessor): [state, dispatch]
+  ```
 </details>
 
 A hook to access the store state value and its associated dispatch. Component which uses the hook is automatically bound to the state.
@@ -192,7 +203,9 @@ export const ToggleComponent = () => {
 <details>
   <summary>Expand parameters</summary>
 
-  `useValue(stateAccessor: StateAccessor, selector?: (state: S) => V, isEqual?: (prevValue: V, nextValue: V ) => boolean)`
+  ```tsx
+  function useValue(stateAccessor: StateAccessor, selector?: (state: S) => V, isEqual?: (prevValue: V, nextValue: V ) => boolean): V
+  ```
 </details>
 
 A hook to access the store state value. Component which uses the hook is automatically bound to the state.
@@ -217,7 +230,9 @@ export const ToggleComponent = () => {
 <details>
   <summary>Expand parameters</summary>
 
-  `useDispatch(stateAccessor: StateAccessor) => dispatch`
+  ```tsx
+  function useDispatch(stateAccessor: StateAccessor): dispatch
+  ```
 </details>
 
 A hook to access the store state dispatch. Component which uses the hook is not bound to the state.
@@ -240,7 +255,9 @@ export const ToggleComponent = () => {
 <details>
   <summary>Expand parameters</summary>
 
-  `useSubscribe(stateAccessor: StateAccessor, cb: (nextState: S) => void) => void`
+  ```tsx
+  function useSubscribe(stateAccessor: StateAccessor, cb: (nextState: S) => void): void
+  ```
 </details>
 
 A hook to subscribe to a store state. Whenever there is a state change, the passed
