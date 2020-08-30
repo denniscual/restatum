@@ -37,11 +37,11 @@ function App() {
 
 ### Lastly, bind your Components!
 ```jsx
-import { useStoreState } from 'restatum'
+import { useSt8 } from 'restatum'
 import appStore from './appStore'
 
 function Counter() {
-    const [count, setCount] = useStoreState(appStore.count)
+    const [count, setCount] = useSt8(appStore.count)
     return (
         <div>
             <span>Count: {count}</span>
@@ -126,7 +126,7 @@ And for complex UI prototyping software, check [redux](https://github.com/reduxj
 
 A `Store` holds the state provided on the configuration/arguments. 
 It takes configuration object which defines the config of every state. It returns `stateAccessors` 
-and a `StoreProvider` that provides a scope for the access of the store.
+and a `StoreProvider` that provides a scope for the store and the access keys.
 
 ```jsx
 const appStore = createStore({
@@ -137,11 +137,11 @@ const appStore = createStore({
 ```
 
 toggle - property takes an object which has `initialState`. It can also accepts a `reducer` function. 
-This object defines on how you want to manage the state.  If no `reducer` is provided, the behavior will be 
-the same like `React.useState`.
+This object defines on how you want to manage the state.  If no `reducer` is provided, the behavior 
+will be the same like `React.useState`.
 
 appStore.StoreProvider - holds the store. Only the Components which are included to the tree can access the store. 
-`StoreProvider` accepts an optional `initialStoreState`. If the prop is given, then the value passed will 
+`StoreProvider` accepts an optional `initializeState`. If the prop is given, then the value passed will 
 override the `initialState` from the `configuration` object. It accepts the same type of `initialState` or 
 an `init` function which returns the `initialState`. This `init` is also invoked once, if the Components gets mounted.
 
@@ -149,7 +149,7 @@ an `init` function which returns the `initialState`. This `init` is also invoked
 function App() {
     return (
         <appStore.StoreProvider
-            initialStoreState={{
+            initializeState={{
                 toggle: true, // You can omit this property then restatum will use the `initialState` from configuration.
                 todos: () => ['zion', 'irish', 'dennis'], // Behaves like lazy initialization.
             }}
@@ -163,22 +163,22 @@ function App() {
 appStore.toggle - property is a `StateAccessor` object. Use this one if you want to access the store state or subcribe 
 to the state change inside the Component, via passing this object as an argument to the hooks.
 
-### useStoreState
+### useSt8
 <details>
   <summary>Expand parameters</summary>
 
-  `useStoreState(stateAccessor: StateAccessor) => [state, dispatch]`
+  `useSt8(stateAccessor: StateAccessor) => [state, dispatch]`
 </details>
 
 A hook to access the store state value and its associated dispatch. Component which uses the hook is automatically bound to the state.
 It returns a tuple type for state and dispatch.
 
 ```jsx
-import { useStoreState } from 'restatum'
+import { useSt8 } from 'restatum'
 import appStore from './appStore'
 
 export const ToggleComponent = () => {
-    const [toggle, setToggle] = useStoreState(appStore.toggle)
+    const [toggle, setToggle] = useSt8(appStore.toggle)
     return (
       <div>
         <span>Toggle is { toggle ? 'on' : 'off' }</span>
@@ -189,14 +189,18 @@ export const ToggleComponent = () => {
 ```
 
 ### useValue
-A hook to access the store state value. Component which uses the hook is automatically 
-bound to the state. Means, the Component will rerender  whenever there is state change.
-It returns state value.
 <details>
   <summary>Expand parameters</summary>
 
-  `useValue(stateAccessor: StateAccessor) => state`
+  `useValue(stateAccessor: StateAccessor, selector?: (state: S) => V, isEqual?: (prevValue: V, nextValue: V ) => boolean)`
 </details>
+
+A hook to access the store state value. Component which uses the hook is automatically bound to the state.
+Means, the Component will rerender whenever there is stata change.
+It returns state value.
+ 
+This hook also accepts an optional `selector` and `isEqual`. Use this
+if your state value structure is complex.
 
 ```jsx
 import { useValue } from 'restatum'
@@ -255,7 +259,6 @@ export const ToggleComponent = () => {
 }
 ```
 
-
 ## License
 
-MIT © [denniscual](https://opensource.org/licenses/MIT)
+MIT © [denniscual](https://github.com/denniscual/restatum/blob/master/LICENSE.MD)

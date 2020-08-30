@@ -240,6 +240,9 @@ function createStore<T extends StoreConfiguration>(configuration: T) {
  * Means, the Component will rerender whenever there is stata change.
  * It returns state value.
  *
+ * This hook also accepts an optional `selector` and `isEqual`. Use this
+ * if your state value structure is complex.
+ *
  * @example
  *
  * import { useValue } from 'restatum'
@@ -390,7 +393,7 @@ function useStoreState<
 /**
  * A hook to access the store state value and its associated dispatch. Component which uses the hook is automatically bound to the state.
  * It returns a tuple type for state and dispatch.
- * Alias for `useStoreState`.
+ * Alias for `useStoreState`. In the future, `useStoreState` will be deprecated in favor for this hook.
  *
  * @example
  *

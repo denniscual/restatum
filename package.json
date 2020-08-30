@@ -1,7 +1,7 @@
 {
     "name": "restatum",
-    "version": "2.0.0",
-    "description": "Make easy to manage your shared state with restatum",
+    "version": "2.1.0",
+    "description": "State management library for lazy people",
     "author": "denniscual",
     "license": "MIT",
     "repository": "denniscual/restatum",
