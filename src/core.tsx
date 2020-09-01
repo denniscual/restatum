@@ -69,10 +69,10 @@ class StoreStateAccessor<
 > {
     private _key: StoreConfigurationKey
     private _config: T[StoreConfigurationKey]
-    public Context: React.Context<Store<State>>
+    public Context: React.Context<Store<State> | null>
 
     public constructor(
-        Context: React.Context<Store<State>>,
+        Context: React.Context<Store<State> | null>,
         key: StoreConfigurationKey,
         config: T[StoreConfigurationKey]
     ) {
@@ -167,7 +167,7 @@ function createStore<T extends StoreConfiguration>(configuration: T) {
     )
 
     const store = new Store(initializeState)
-    const StoreContext = React.createContext(store)
+    const StoreContext = React.createContext<typeof store | null>(null)
 
     let storeStateAccessors = entries(configuration).reduce(
         (acc, [key, config]) => {
@@ -235,6 +235,24 @@ function createStore<T extends StoreConfiguration>(configuration: T) {
 // ---------------------------- hooks ------------------------------//
 // -----------------------------------------------------------------//
 
+function useStore<
+    T extends StoreConfiguration,
+    StoreConfigurationKey extends keyof T,
+    State extends InitialStoreState<T>
+>(storeStateAccessor: StoreStateAccessor<T, StoreConfigurationKey, State>) {
+    invariant(
+        storeStateAccessor instanceof StoreStateAccessor,
+        `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
+    )
+    const store = React.useContext(storeStateAccessor.Context)
+    invariant(
+        store,
+        `Error when consuming the restatum store. Component was not wrapped to a StoreProvider.`
+    )
+
+    return store
+}
+
 /**
  * A hook to access the store state value. Component which uses the hook is automatically bound to the state.
  * Means, the Component will rerender whenever there is stata change.
@@ -271,10 +289,6 @@ function useValue<
     ) => boolean = isSelectedValueEqual
 ): SelectedValue {
     invariant(
-        storeStateAccessor instanceof StoreStateAccessor,
-        `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
-    )
-    invariant(
         typeof selector === 'function',
         `Invalid selector type. "useValue" is expecting function type but receives ${typeof selector}.`
     )
@@ -283,8 +297,8 @@ function useValue<
         `Invalid isEqual type. "useValue" is expecting function type but receives ${typeof isEqual}.`
     )
 
-    const { Context, getKey } = storeStateAccessor
-    const store = React.useContext(Context)
+    const { getKey } = storeStateAccessor
+    const store = useStore(storeStateAccessor)
 
     const latestSelector = React.useRef(selector)
 
@@ -345,12 +359,8 @@ function useDispatch<
 >(
     storeStateAccessor: StoreStateAccessor<T, StoreConfigurationKey, State>
 ): GetDispatch<T, StoreConfigurationKey> {
-    invariant(
-        storeStateAccessor instanceof StoreStateAccessor,
-        `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
-    )
-    const { Context, getDispatch } = storeStateAccessor
-    const store = React.useContext(Context)
+    const { getDispatch } = storeStateAccessor
+    const store = useStore(storeStateAccessor)
 
     return getDispatch(store)
 }
@@ -381,10 +391,6 @@ function useStoreState<
 >(
     storeStateAccessor: StoreStateAccessor<T, StoreConfigurationKey, State>
 ): [GetState<T, StoreConfigurationKey>, GetDispatch<T, StoreConfigurationKey>] {
-    invariant(
-        storeStateAccessor instanceof StoreStateAccessor,
-        `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
-    )
     const value = useValue(storeStateAccessor)
     const dispatch = useDispatch(storeStateAccessor)
     return [value, dispatch]
@@ -417,10 +423,6 @@ function useSt8<
 >(
     storeStateAccessor: StoreStateAccessor<T, StoreConfigurationKey, State>
 ): [GetState<T, StoreConfigurationKey>, GetDispatch<T, StoreConfigurationKey>] {
-    invariant(
-        storeStateAccessor instanceof StoreStateAccessor,
-        `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
-    )
     const value = useValue(storeStateAccessor)
     const dispatch = useDispatch(storeStateAccessor)
     return [value, dispatch]
@@ -454,8 +456,8 @@ function useSubscribe<
         storeStateAccessor instanceof StoreStateAccessor,
         `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
     )
-    const { Context, getKey } = storeStateAccessor
-    const store = React.useContext(Context)
+    const { getKey } = storeStateAccessor
+    const store = useStore(storeStateAccessor)
 
     React.useEffect(() => {
         store.subscribe(() => {
