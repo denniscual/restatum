@@ -1,4 +1,10 @@
-import React from 'react'
+import React, {
+    // @ts-ignore
+    unstable_createMutableSource as createMutableSource,
+    // @ts-ignore
+    unstable_useMutableSource as useMutableSource,
+} from 'react'
+
 import invariant from 'invariant'
 import Store from './Store'
 
@@ -69,18 +75,18 @@ class StoreStateAccessor<
     private _key: StoreConfigurationKey
     private _config: T[StoreConfigurationKey]
     public Context: React.Context<Store<State> | null>
-    public MutableSourceContext: React.Context<any>
+    public mutableSource: any
 
     public constructor(
         Context: React.Context<Store<State> | null>,
         key: StoreConfigurationKey,
         config: T[StoreConfigurationKey],
-        MutableSourceContext: React.Context<any>
+        mutableSource: any
     ) {
         this.Context = Context
         this._key = key
         this._config = config
-        this.MutableSourceContext = MutableSourceContext
+        this.mutableSource = mutableSource
     }
 
     public getKey = () => {
@@ -120,6 +126,10 @@ class StoreStateAccessor<
 
 function identity<S>(state: S) {
     return state
+}
+
+function isEqualFn<T>(prev: T, next: T) {
+    return prev === next
 }
 
 // ------------------------------------------------------------------//
@@ -164,12 +174,8 @@ function createStore<T extends StoreConfiguration>(configuration: T) {
     const store = new Store(initializeState)
     const StoreContext = React.createContext<typeof store | null>(null)
 
-    // @ts-ignore
     // mutable source
-    const mutableSource = React.unstable_createMutableSource(store, () =>
-        store.getState()
-    )
-    const MutableSourceContext = React.createContext(mutableSource)
+    const mutableSource = createMutableSource(store, () => store.getState())
 
     let storeStateAccessors = entries(configuration).reduce(
         (acc, [key, config]) => {
@@ -177,7 +183,7 @@ function createStore<T extends StoreConfiguration>(configuration: T) {
                 StoreContext,
                 key,
                 config,
-                MutableSourceContext
+                mutableSource
             )
             return acc
         },
@@ -227,9 +233,7 @@ function createStore<T extends StoreConfiguration>(configuration: T) {
 
         return (
             <StoreContext.Provider value={store}>
-                <MutableSourceContext.Provider value={mutableSource}>
-                    {children}
-                </MutableSourceContext.Provider>
+                {children}
             </StoreContext.Provider>
         )
     }
@@ -296,7 +300,8 @@ function useValue<
     storeStateAccessor: StoreStateAccessor<T, StoreConfigurationKey, State>,
     selector: (
         state: GetState<T, StoreConfigurationKey>
-    ) => SelectedValue = identity
+    ) => SelectedValue = identity,
+    isEqual = isEqualFn
 ): SelectedValue {
     invariant(
         typeof selector === 'function',
@@ -308,14 +313,23 @@ function useValue<
         `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
     )
 
-    const { getKey, MutableSourceContext } = storeStateAccessor
+    const { getKey, mutableSource } = storeStateAccessor
 
-    const mutableSource = React.useContext(MutableSourceContext)
+    // We can use this `lastSelectedValue` if we want to override the `isEqual` behaviuor.
+    // Like selecting an object and do a deep equal against 2 objects.
+    const lastSelectedValue = React.useRef<SelectedValue | null>(null)
 
     const getSnapshot = React.useCallback(
         (store) => {
             try {
                 const value = selector(store.getState()[getKey()])
+                if (
+                    lastSelectedValue.current &&
+                    isEqual(lastSelectedValue.current, value)
+                ) {
+                    return lastSelectedValue.current
+                }
+                lastSelectedValue.current = value
                 return value
             } catch (err) {
                 const newErr = new Error(
@@ -325,15 +339,10 @@ function useValue<
                 throw newErr
             }
         },
-        [getKey, selector]
+        [getKey, selector, isEqual]
     )
 
-    // @ts-ignore
-    const value = React.unstable_useMutableSource(
-        mutableSource,
-        getSnapshot,
-        subscribe
-    )
+    const value = useMutableSource(mutableSource, getSnapshot, subscribe)
 
     // Display the current value for this hook in React DevTools.
     React.useDebugValue(`Selected value: ${value}`)

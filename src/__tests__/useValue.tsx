@@ -16,7 +16,7 @@ function runSetup() {
     })
 }
 
-it('should return the state', () => {
+it.skip('should return the state', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useValue(Container.toggle), {
         wrapper: Container.StoreProvider,
@@ -25,7 +25,7 @@ it('should return the state', () => {
     expect(result.current).toBeFalsy()
 })
 
-it('should get the updated state', () => {
+it.skip('should get the updated state', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useValue(Container.toggle), {
         wrapper: Container.StoreProvider,

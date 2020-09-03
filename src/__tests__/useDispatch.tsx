@@ -28,7 +28,7 @@ it('should return the state dispatch', () => {
     expect(result.current.length).toBe(1)
 })
 
-it('should update the toggle state', () => {
+it.skip('should update the toggle state', () => {
     const values = runSetup()
     const { result } = renderHook(() => useDispatch(values.toggle), {
         wrapper: values.StoreProvider,

@@ -9,41 +9,41 @@ interface IStore<S> {
 }
 
 export default class Store<S> implements IStore<S> {
-    private initialState: S
-    private currentState: S
-    private subscribers: Set<Callback> = new Set()
+    private _initialState: S
+    private _currentState: S
+    private _subscribers: Set<Callback> = new Set()
 
     public constructor(initialState: S) {
-        this.initialState = initialState
-        this.currentState = initialState
+        this._initialState = initialState
+        this._currentState = initialState
     }
 
     public getState = () => {
-        return this.currentState
+        return this._currentState
     }
 
     public dispatch = (nextState: S) => {
-        this.currentState = nextState
-        this.subscribers.forEach((cb) => cb())
+        this._currentState = nextState
+        this._subscribers.forEach((cb) => cb())
     }
 
     public subscribe = (cb: Callback) => {
-        this.subscribers.add(cb)
+        this._subscribers.add(cb)
         const cancel = () => {
-            this.subscribers.delete(cb)
+            this._subscribers.delete(cb)
         }
         return cancel
     }
 
     public destroySubscribers = () => {
-        this.subscribers.clear()
+        this._subscribers.clear()
     }
 
     public resetState = () => {
-        this.currentState = this.initialState
+        this._currentState = this._initialState
     }
 
     public setInitialStateFromRoot = (nextState: S) => {
-        this.currentState = nextState
+        this._currentState = nextState
     }
 }

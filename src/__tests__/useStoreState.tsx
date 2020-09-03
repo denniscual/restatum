@@ -17,7 +17,7 @@ function runSetup() {
     })
 }
 
-it('should return a tuple type with the state and the dispatch', () => {
+it.skip('should return a tuple type with the state and the dispatch', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useStoreState(Container.toggle), {
         wrapper: Container.StoreProvider,
@@ -29,7 +29,7 @@ it('should return a tuple type with the state and the dispatch', () => {
     expect(setToggle.length).toBe(1)
 })
 
-it('should update the toggle state', () => {
+it.skip('should update the toggle state', () => {
     const Container = runSetup()
     const { result } = renderHook(() => useStoreState(Container.toggle), {
         wrapper: Container.StoreProvider,
