@@ -1,7 +1,12 @@
-import React from 'react'
+import React, {
+    // @ts-ignore
+    unstable_createMutableSource as createMutableSource,
+    // @ts-ignore
+    unstable_useMutableSource as useMutableSource,
+} from 'react'
+
 import invariant from 'invariant'
 import Store from './Store'
-import { useSubscription } from './use-subscription'
 
 // ------------------------------------------------------------------//
 // ---------------------------- types ------------------------------//
@@ -70,15 +75,18 @@ class StoreStateAccessor<
     private _key: StoreConfigurationKey
     private _config: T[StoreConfigurationKey]
     public Context: React.Context<Store<State> | null>
+    public mutableSource: any
 
     public constructor(
         Context: React.Context<Store<State> | null>,
         key: StoreConfigurationKey,
-        config: T[StoreConfigurationKey]
+        config: T[StoreConfigurationKey],
+        mutableSource: any
     ) {
         this.Context = Context
         this._key = key
         this._config = config
+        this.mutableSource = mutableSource
     }
 
     public getKey = () => {
@@ -116,15 +124,12 @@ class StoreStateAccessor<
     }
 }
 
-function isSelectedValueEqual<SelectedValue>(
-    prevValue: SelectedValue,
-    nextValue: SelectedValue
-) {
-    return prevValue === nextValue
-}
-
 function identity<S>(state: S) {
     return state
+}
+
+function isEqualFn<T>(prev: T, next: T) {
+    return prev === next
 }
 
 // ------------------------------------------------------------------//
@@ -169,9 +174,17 @@ function createStore<T extends StoreConfiguration>(configuration: T) {
     const store = new Store(initializeState)
     const StoreContext = React.createContext<typeof store | null>(null)
 
+    // mutable source
+    const mutableSource = createMutableSource(store, () => store.getState())
+
     let storeStateAccessors = entries(configuration).reduce(
         (acc, [key, config]) => {
-            acc[key] = new StoreStateAccessor(StoreContext, key, config)
+            acc[key] = new StoreStateAccessor(
+                StoreContext,
+                key,
+                config,
+                mutableSource
+            )
             return acc
         },
         {} as StoreStateAccessors<T, typeof initializeState>
@@ -253,6 +266,11 @@ function useStore<
     return store
 }
 
+// For mutable source
+// Because this method doesn't require access to props,
+// it can be declared in module scope to be shared between hooks.
+const subscribe = (store: any, callback: any) => store.subscribe(callback)
+
 /**
  * A hook to access the store state value. Component which uses the hook is automatically bound to the state.
  * Means, the Component will rerender whenever there is stata change.
@@ -283,52 +301,48 @@ function useValue<
     selector: (
         state: GetState<T, StoreConfigurationKey>
     ) => SelectedValue = identity,
-    isEqual: (
-        prevValue: SelectedValue,
-        nextValue: SelectedValue
-    ) => boolean = isSelectedValueEqual
+    isEqual = isEqualFn
 ): SelectedValue {
     invariant(
         typeof selector === 'function',
         `Invalid selector type. "useValue" is expecting function type but receives ${typeof selector}.`
     )
+
     invariant(
-        typeof isEqual === 'function',
-        `Invalid isEqual type. "useValue" is expecting function type but receives ${typeof isEqual}.`
+        storeStateAccessor instanceof StoreStateAccessor,
+        `Invalid storeStateAccessor instance type. "useValue" is expecting a StoreStateAccessor instance. `
     )
 
-    const { getKey } = storeStateAccessor
-    const store = useStore(storeStateAccessor)
+    const { getKey, mutableSource } = storeStateAccessor
 
-    const latestSelector = React.useRef(selector)
+    // We can use this `lastSelectedValue` if we want to override the `isEqual` behaviuor.
+    // Like selecting an object and do a deep equal against 2 objects.
+    const lastSelectedValue = React.useRef<SelectedValue | null>(null)
 
-    if (latestSelector.current !== selector) {
-        latestSelector.current = selector
-    }
-
-    const subscription = React.useMemo(() => {
-        return {
-            getCurrentValue: () => {
-                try {
-                    const value = latestSelector.current(
-                        store.getState()[getKey()]
-                    )
-                    return value
-                } catch (err) {
-                    const newErr = new Error(
-                        `There was an error when trying to invoke the provided "selector".`
-                    )
-                    newErr.stack = err.stack
-                    throw newErr
+    const getSnapshot = React.useCallback(
+        (store) => {
+            try {
+                const value = selector(store.getState()[getKey()])
+                if (
+                    lastSelectedValue.current &&
+                    isEqual(lastSelectedValue.current, value)
+                ) {
+                    return lastSelectedValue.current
                 }
-            },
-            subscribe: (callback: any) => {
-                return store.subscribe(callback)
-            },
-        }
-    }, [store, getKey])
+                lastSelectedValue.current = value
+                return value
+            } catch (err) {
+                const newErr = new Error(
+                    `There was an error when trying to invoke the provided "selector".`
+                )
+                newErr.stack = err.stack
+                throw newErr
+            }
+        },
+        [getKey, selector, isEqual]
+    )
 
-    const value = useSubscription(subscription, isEqual)
+    const value = useMutableSource(mutableSource, getSnapshot, subscribe)
 
     // Display the current value for this hook in React DevTools.
     React.useDebugValue(`Selected value: ${value}`)
