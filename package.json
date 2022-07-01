@@ -1,6 +1,6 @@
 {
     "name": "restatum",
-    "version": "3.0.0-experimental.0",
+    "version": "3.0.0-rc.0",
     "description": "State management library for lazy people",
     "author": "denniscual",
     "license": "MIT",
